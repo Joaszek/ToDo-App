@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'create_task.dart';
 
-class createProjectPage extends StatelessWidget {
+class CreateProjectPage extends StatelessWidget {
+  const CreateProjectPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Project'),
+        title: const Text('New Project'),
       ),
       body: Center(
         child: Column(
@@ -17,11 +19,10 @@ class createProjectPage extends StatelessWidget {
                 // Add your onPressed function here
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => createTaskPage()),
+                  MaterialPageRoute(builder: (context) => const CreateNewTask()),
                 );
-                print('new task Button pressed');
               },
-              child: Text('New task Button'),
+              child: const Text('New task Button'),
             ),
           ],
         ),

@@ -8,8 +8,8 @@ class TaskListScreen extends StatefulWidget {
   final Function(String, String, Errand) addErrandCallback;
   final VoidCallback updateUICallback;
 
-  TaskListScreen(this.project, this.addTaskCallback, this.addErrandCallback,
-      this.updateUICallback);
+  const TaskListScreen(this.project, this.addTaskCallback, this.addErrandCallback,
+      this.updateUICallback, {super.key});
 
   @override
   _TaskListScreenState createState() => _TaskListScreenState();
@@ -69,20 +69,20 @@ class _TaskListScreenState extends State<TaskListScreen> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Create a New Task'),
+                title: const Text('Create a New Task'),
                 content: TextField(
                   controller: taskNameController,
-                  decoration: InputDecoration(labelText: 'Task Name'),
+                  decoration: const InputDecoration(labelText: 'Task Name'),
                 ),
                 actions: <Widget>[
                   TextButton(
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                   ),
                   TextButton(
-                    child: Text('Create'),
+                    child: const Text('Create'),
                     onPressed: () {
                       // Use the updated function to add a task and trigger UI update
                       addTaskAndRefreshUI(taskNameController.text);
@@ -96,7 +96,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
             },
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
