@@ -1,4 +1,3 @@
-// task_list_screen.dart
 import 'package:flutter/material.dart';
 import 'errand_list_screen.dart';
 import 'models.dart';

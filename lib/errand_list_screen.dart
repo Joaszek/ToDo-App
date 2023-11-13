@@ -1,5 +1,3 @@
-// errand_list_screen.dart
-
 import 'package:flutter/material.dart';
 import 'models.dart';
 

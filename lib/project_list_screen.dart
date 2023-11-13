@@ -1,5 +1,3 @@
-// project_list_screen.dart
-
 import 'package:flutter/material.dart';
 import 'task_list_screen.dart';
 import 'models.dart';
