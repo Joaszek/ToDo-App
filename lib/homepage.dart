@@ -1,16 +1,18 @@
-// project_list_screen.dart
-
 import 'package:flutter/material.dart';
+import 'create_project.dart';
+import 'create_task.dart';
 import 'task_list_screen.dart';
 import 'models.dart';
 import 'calendar_screen.dart';
 
-class ProjectListScreen extends StatefulWidget {
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
-  _ProjectListScreenState createState() => _ProjectListScreenState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _ProjectListScreenState extends State<ProjectListScreen> {
+class _HomePageState extends State<HomePage> {
   DateTime selectedDate = DateTime.now();
 
   final TextEditingController projectNameController = TextEditingController();
@@ -100,7 +102,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('To-Do app'),
+        title: const Text('To-Do app'),
       ),
       body: Column(
         children: [
@@ -108,104 +110,47 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Container(
-                margin: EdgeInsets.all(16.0),
+                margin: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 child: TextButton(
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Create a New Project'),
-                          content: TextField(
-                            controller: projectNameController,
-                            decoration:
-                                InputDecoration(labelText: 'Project Name'),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: Text('Cancel',
-                                  style: TextStyle(color: Colors.blue)),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            TextButton(
-                              child: Text('Create',
-                                  style: TextStyle(color: Colors.blue)),
-                              onPressed: () {
-                                String projectName = projectNameController.text;
-                                if (projectName.isNotEmpty) {
-                                  addProject(projectName);
-                                }
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CreateProjectPage()),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     'New Project',
                     style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
                 ),
               ),
               Container(
-                margin: EdgeInsets.all(16.0),
+                margin: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 child: TextButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Create a New Task'),
-                          content: TextField(
-                            controller: singleTaskController,
-                            decoration: InputDecoration(labelText: 'Task Name'),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: Text('Cancel',
-                                  style: TextStyle(color: Colors.blue)),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            TextButton(
-                              child: Text('Create',
-                                  style: TextStyle(color: Colors.blue)),
-                              onPressed: () {
-                                String taskName = singleTaskController.text;
-                                if (taskName.isNotEmpty) {
-                                  addSingleTask(Task(taskName, [], null, null));
-                                }
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CreateNewTask()),
+                  );
                   },
-                  child: Text(
-                    'New Task',
-                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  child: const Text(
+                  'New Task',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0),
+                  ),
                   ),
                 ),
-              ),
             ],
           ),
           // Date Window
-          Container(
+          SizedBox(
             height: 100, // Set the desired height
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -227,7 +172,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                   },
                   child: Container(
                     width: 100, // Set the desired width for each cell
-                    margin: EdgeInsets.all(8),
+                    margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(10),
@@ -235,7 +180,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       '${currentDate.day}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                       ),
@@ -246,7 +191,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             ),
           ),
           AppBar(
-            title: Text('Projects', style: TextStyle(color: Colors.black)),
+            title: const Text('Projects', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
             elevation: 0,
           ),
@@ -268,7 +213,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     ),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.search),
+                    icon: const Icon(Icons.search),
                     tooltip: 'Explore',
                     onPressed: () {
                       exploreProject(project);
@@ -279,7 +224,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             ),
           ),
           AppBar(
-            title: Text('Tasks', style: TextStyle(color: Colors.black)),
+            title: const Text('Tasks', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
             elevation: 0,
           ),

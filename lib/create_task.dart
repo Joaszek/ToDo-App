@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter
+import 'package:flutter/services.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 /*content: StatefulBuilder(
@@ -8,19 +8,21 @@ return CalendarPopup(setState: setState);
 },
 ),*/
 
-class createTaskPage extends StatelessWidget {
+class CreateNewTask extends StatelessWidget {
+  const CreateNewTask({super.key});
+
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController _dateController = TextEditingController();
-    TextEditingController _timeController = TextEditingController();
-    late TimeInputFormatter _timeInputFormatter;
-    _timeInputFormatter = TimeInputFormatter();
-    bool _value = false;
+    TextEditingController dateController = TextEditingController();
+    TextEditingController timeController = TextEditingController();
+    late TimeInputFormatter timeInputFormatter;
+    timeInputFormatter = TimeInputFormatter();
+    bool value = false;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Task'),
+        title: const Text('New Task'),
       ),
       body: Center(
         child: Column(
@@ -31,15 +33,14 @@ class createTaskPage extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    bool _showCalendar = false;
                     return AlertDialog(
                       title: const Text('Deadline'),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           TextField(
-                            controller: _dateController,
-                            decoration: InputDecoration(
+                            controller: dateController,
+                            decoration: const InputDecoration(
                               labelText: 'Enter Date (YYYY-MM-DD)',
                             ),
                             keyboardType: TextInputType.datetime,
@@ -51,20 +52,20 @@ class createTaskPage extends StatelessWidget {
                             ],
                           ),
                           IconButton(
-                            icon: Icon(Icons.calendar_month),
+                            icon: const Icon(Icons.calendar_month),
                             onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: Text('Select date'),
+                                    title: const Text('Select date'),
                                     content: StatefulBuilder(
                                       builder: (BuildContext context, StateSetter setState) {
                                         return CalendarPopup(setState: setState);
                                       },
                                     ),
                                     actions: <Widget>[
-                                      new TextButton(
+                                      TextButton(
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
@@ -77,27 +78,27 @@ class createTaskPage extends StatelessWidget {
                             },
                           ),
                           TextField(
-                            controller: _timeController,
-                            decoration: InputDecoration(
+                            controller: timeController,
+                            decoration: const InputDecoration(
                               labelText: 'Enter time (HH:MM)',
                             ),
                             keyboardType: TextInputType.datetime,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                               LengthLimitingTextInputFormatter(4),
-                              _timeInputFormatter,
+                              timeInputFormatter,
                             ],
                           ),
                           StatefulBuilder(
                             builder: (BuildContext context, StateSetter setState) {
                               return Row(
                                 children: [
-                                  Text('Free deadline'),
+                                  const Text('Free deadline'),
                                   Checkbox(
-                                    value: _value,
+                                    value: value,
                                     onChanged: (newValue) {
                                       setState(() {
-                                        _value = newValue!;
+                                        value = newValue!;
                                       });
                                     },
                                   ),
@@ -109,12 +110,12 @@ class createTaskPage extends StatelessWidget {
                         ],
                       ),
                       actions: <Widget>[
-                        new TextButton(
+                        TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
                             print('The data are:');
-                            print(_dateController.text);
-                            print(_timeController.text);
+                            print(dateController.text);
+                            print(timeController.text);
                           },
                           child: const Text('Finish'),
                         ),
@@ -124,7 +125,7 @@ class createTaskPage extends StatelessWidget {
                 );
                 print('Deadline Button pressed');
               },
-              child: Text('Deadline Button'),
+              child: const Text('Deadline Button'),
             ),
           ],
         ),
@@ -136,14 +137,14 @@ class createTaskPage extends StatelessWidget {
 class CalendarPopup extends StatefulWidget {
   final StateSetter setState;
 
-  CalendarPopup({required this.setState});
+  const CalendarPopup({super.key, required this.setState});
 
   @override
   _CalendarPopupState createState() => _CalendarPopupState();
 }
 
 class _CalendarPopupState extends State<CalendarPopup> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
 
@@ -193,7 +194,7 @@ class TimeInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     var newText = newValue.text;
-    if (newText.length > 0) {
+    if (newText.isNotEmpty) {
       if (newText.length >= 3) {
         final hour = newText.substring(0, 2);
         final minute = newText.substring(2);
@@ -206,82 +207,3 @@ class TimeInputFormatter extends TextInputFormatter {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-class createTaskPage extends StatefulWidget {
-  @override
-  _createTaskPageState createState() => _createTaskPageState();
-}
-
-class _createTaskPageState extends State<createTaskPage> {
-  bool _showCalendar = false;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
-  DateTime _selectedDay = DateTime.now();
-
-  Widget _buildPopupDialog(BuildContext context) {
-    return AlertDialog(
-      content: TableCalendar(
-        firstDay: DateTime.utc(2020, 01, 01),
-        lastDay: DateTime.utc(2030, 12, 31),
-        focusedDay: _focusedDay,
-        calendarFormat: _calendarFormat,
-        selectedDayPredicate: (day) {
-          return isSameDay(_selectedDay, day);
-        },
-        onDaySelected: (selectedDay, focusedDay) {
-          setState(() {
-            _selectedDay = selectedDay;
-            _focusedDay = focusedDay;
-          });
-        },
-        onFormatChanged: (format) {
-          setState(() {
-            _calendarFormat = format;
-          });
-        },
-        onPageChanged: (focusedDay) {
-          _focusedDay = focusedDay;
-        },
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('New Task'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                // Add your onPressed function here
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => _buildPopupDialog(context)),
-                );
-                print('deadline Button pressed');
-              },
-              child: Text('Deadline'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}*/
