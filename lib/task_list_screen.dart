@@ -4,12 +4,8 @@ import 'models.dart';
 
 class TaskListScreen extends StatefulWidget {
   final Project project;
-  final Function(String, Task) addTaskCallback;
-  final Function(String, String, Errand) addErrandCallback;
-  final VoidCallback updateUICallback;
 
-  const TaskListScreen(this.project, this.addTaskCallback, this.addErrandCallback,
-      this.updateUICallback, {super.key});
+  const TaskListScreen(this.project, {super.key});
 
   @override
   _TaskListScreenState createState() => _TaskListScreenState();
@@ -19,13 +15,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
   final TextEditingController taskNameController = TextEditingController();
 
   // Updated function to add a task and trigger UI update
-  void addTaskAndRefreshUI(String taskName) {
-    if (taskName.isNotEmpty) {
-      widget.addTaskCallback(
-          widget.project.name, Task(taskName, [], null, null));
-      widget.updateUICallback();
-    }
-  }
+  // void addTaskAndRefreshUI(String taskName) {
+  //   if (taskName.isNotEmpty) {
+  //     widget.addTask(
+  //         widget.project.name, Task(taskName, [], null, null));
+  //     widget.updateUI();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +48,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ErrandListScreen(widget.project, task,
-                      widget.addErrandCallback, widget.updateUICallback),
+                      widget.addErrand, widget.updateUI),
                 ),
               );
 
               // When returning from the ErrandListScreen, update the UI to
               // reflect the new errand completion status.
-              widget.updateUICallback();
+              widget.updateUI();
             },
           );
         },
@@ -99,5 +95,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  void addTask(Project project, Task task) {
+    setState(() {
+      project.tasks.add(task);
+    });
   }
 }

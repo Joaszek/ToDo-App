@@ -6,6 +6,7 @@ import 'models.dart';
 import 'calendar_screen.dart';
 
 class HomePage extends StatefulWidget {
+
   const HomePage({super.key});
 
   @override
@@ -18,7 +19,8 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController projectNameController = TextEditingController();
   final TextEditingController singleTaskController = TextEditingController();
 
-  final List<Project> projects = [
+
+  List<Project> projects = [
     Project('Project 1', [
       Task(
           'Task 1.1',
@@ -45,9 +47,11 @@ class _HomePageState extends State<HomePage> {
 
   final List<Task> singleTasks = [];
 
-  void addProject(String projectName) {
+
+
+  void addProject(Project project) {
     setState(() {
-      projects.add(Project(projectName, []));
+      projects.add(project);
     });
   }
 
@@ -88,7 +92,7 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            TaskListScreen(project, addTask, addErrand, updateUI),
+            TaskListScreen(project),
       ),
     );
   }
@@ -117,9 +121,45 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CreateProjectPage()),
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Create a New Project'),
+                          content: TextField(
+                            controller: projectNameController,
+                            decoration:
+                            const InputDecoration(labelText: 'Project Name'),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Cancel',
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: const Text('Create',
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                String projectName = projectNameController.text;
+                                Project project;
+                                if (projectName.isNotEmpty) {
+                                  project = Project(projectName, []);
+                                  addProject(project);
+                                  Navigator.of(context).pop();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => CreateNewProject(context, project)),
+                                  );
+                                }
+
+                              },
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                   child: const Text(
