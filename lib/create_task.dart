@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter
+import 'package:flutter/services.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 /*content: StatefulBuilder(
