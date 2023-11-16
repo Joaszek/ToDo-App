@@ -1,10 +1,12 @@
+// calendar_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarScreen extends StatefulWidget {
   final DateTime initialDate;
 
-  const CalendarScreen(this.initialDate, {super.key});
+  CalendarScreen(this.initialDate);
 
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
@@ -40,7 +42,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendar'),
+        title: Text('Calendar'),
       ),
       body: Column(
         children: [

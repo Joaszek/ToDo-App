@@ -1,19 +1,17 @@
+// main.dart
+
 import 'package:flutter/material.dart';
-import 'homepage.dart';
+import 'project_list_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      //home: HomePage(title: 'Title'),
-      home: HomePage(),
+    return MaterialApp(
+      home: ProjectListScreen(),
     );
   }
 }
-
