@@ -1,26 +1,19 @@
+// project_list_screen.dart
+
 import 'package:flutter/material.dart';
-import 'create_project.dart';
-import 'create_task.dart';
 import 'task_list_screen.dart';
 import 'models.dart';
-import 'calendar_screen.dart';
 
-class HomePage extends StatefulWidget {
-
-  const HomePage({super.key});
-
+class ProjectListScreen extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _ProjectListScreenState createState() => _ProjectListScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
-  DateTime selectedDate = DateTime.now();
-
+class _ProjectListScreenState extends State<ProjectListScreen> {
   final TextEditingController projectNameController = TextEditingController();
   final TextEditingController singleTaskController = TextEditingController();
 
-
-  List<Project> projects = [
+  final List<Project> projects = [
     Project('Project 1', [
       Task(
           'Task 1.1',
@@ -47,14 +40,13 @@ class _HomePageState extends State<HomePage> {
 
   final List<Task> singleTasks = [];
 
-
-
-  void addProject(Project project) {
+  void addProject(String projectName) {
     setState(() {
-      projects.add(project);
+      projects.add(Project(projectName, []));
     });
   }
 
+// Define the addTask function
   void addTask(String projectName, Task task) {
     for (var project in projects) {
       if (project.name == projectName) {
@@ -66,12 +58,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void addSingleTask(Task task) {
-    setState(() {
-      singleTasks.add(task);
-    });
-  }
-
+  // Define the addErrand function
   void addErrand(String projectName, String taskName, Errand errand) {
     for (var project in projects) {
       if (project.name == projectName) {
@@ -87,26 +74,40 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+// Define the updateUI function
+  void updateUI() {
+    setState(() {});
+  }
+
   void exploreProject(Project project) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            TaskListScreen(project),
+        builder: (context) => TaskListScreen(
+          project: project,
+          addTaskCallback: addTask,
+          updateUICallback: updateUI,
+          addErrandCallback: addErrand,
+        ),
       ),
     );
-  }
-
-  // This function will be called to update the UI
-  void updateUI() {
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('To-Do app'),
+        title: Text('To-Do app'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            tooltip: 'Explore',
+            onPressed: () {
+              // Implement the desired action when the Explore button is pressed
+              print('Explore button pressed');
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -114,7 +115,7 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Container(
-                margin: const EdgeInsets.all(16.0),
+                margin: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(20.0),
@@ -125,36 +126,29 @@ class _HomePageState extends State<HomePage> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: const Text('Create a New Project'),
+                          title: Text('Create a New Project'),
                           content: TextField(
                             controller: projectNameController,
                             decoration:
-                            const InputDecoration(labelText: 'Project Name'),
+                                InputDecoration(labelText: 'Project Name'),
                           ),
                           actions: <Widget>[
                             TextButton(
-                              child: const Text('Cancel',
+                              child: Text('Cancel',
                                   style: TextStyle(color: Colors.blue)),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
                             ),
                             TextButton(
-                              child: const Text('Create',
+                              child: Text('Create',
                                   style: TextStyle(color: Colors.blue)),
                               onPressed: () {
                                 String projectName = projectNameController.text;
-                                Project project;
                                 if (projectName.isNotEmpty) {
-                                  project = Project(projectName, []);
-                                  addProject(project);
-                                  Navigator.of(context).pop();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => CreateNewProject(context, project)),
-                                  );
+                                  addProject(projectName);
                                 }
-
+                                Navigator.of(context).pop();
                               },
                             ),
                           ],
@@ -162,76 +156,67 @@ class _HomePageState extends State<HomePage> {
                       },
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'New Project',
                     style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
                 ),
               ),
               Container(
-                margin: const EdgeInsets.all(16.0),
+                margin: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CreateNewTask()),
-                  );
-                  },
-                  child: const Text(
-                  'New Task',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0),
-                  ),
-                  ),
-                ),
-            ],
-          ),
-          // Date Window
-          SizedBox(
-            height: 100, // Set the desired height
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: 30, // Change the number of days as needed
-              itemBuilder: (context, index) {
-                DateTime currentDate =
-                    DateTime.now().add(Duration(days: index));
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedDate = currentDate;
-                    });
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CalendarScreen(selectedDate),
-                      ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Create a New Task'),
+                          content: TextField(
+                            controller: singleTaskController,
+                            decoration: InputDecoration(labelText: 'Task Name'),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('Cancel',
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: Text('Create',
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                String taskName = singleTaskController.text;
+                                if (taskName.isNotEmpty) {
+                                  // Update the UI callback directly here
+                                  setState(() {
+                                    singleTasks
+                                        .add(Task(taskName, [], null, null));
+                                  });
+                                }
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
-                  child: Container(
-                    width: 100, // Set the desired width for each cell
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '${currentDate.day}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
+                  child: Text(
+                    'New Task',
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
           AppBar(
-            title: const Text('Projects', style: TextStyle(color: Colors.black)),
+            title: Text('Projects', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
             elevation: 0,
           ),
@@ -253,7 +238,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.search),
+                    icon: Icon(Icons.search),
                     tooltip: 'Explore',
                     onPressed: () {
                       exploreProject(project);
@@ -264,7 +249,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           AppBar(
-            title: const Text('Tasks', style: TextStyle(color: Colors.black)),
+            title: Text('Tasks', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
             elevation: 0,
           ),

@@ -1,11 +1,21 @@
+// task_list_screen.dart
+
 import 'package:flutter/material.dart';
 import 'errand_list_screen.dart';
 import 'models.dart';
 
 class TaskListScreen extends StatefulWidget {
   final Project project;
+  final Function(String, Task) addTaskCallback;
+  final Function(String, String, Errand) addErrandCallback;
+  final VoidCallback updateUICallback;
 
-  const TaskListScreen(this.project, {super.key});
+  TaskListScreen({
+    required this.project,
+    required this.addTaskCallback,
+    required this.updateUICallback,
+    required this.addErrandCallback,
+  });
 
   @override
   _TaskListScreenState createState() => _TaskListScreenState();
@@ -13,15 +23,6 @@ class TaskListScreen extends StatefulWidget {
 
 class _TaskListScreenState extends State<TaskListScreen> {
   final TextEditingController taskNameController = TextEditingController();
-
-  // Updated function to add a task and trigger UI update
-  // void addTaskAndRefreshUI(String taskName) {
-  //   if (taskName.isNotEmpty) {
-  //     widget.addTask(
-  //         widget.project.name, Task(taskName, [], null, null));
-  //     widget.updateUI();
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -47,14 +48,18 @@ class _TaskListScreenState extends State<TaskListScreen> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ErrandListScreen(widget.project, task,
-                      widget.addErrand, widget.updateUI),
+                  builder: (context) => ErrandListScreen(
+                    widget.project,
+                    task,
+                    widget.addErrandCallback,
+                    widget.updateUICallback,
+                  ),
                 ),
               );
 
               // When returning from the ErrandListScreen, update the UI to
               // reflect the new errand completion status.
-              widget.updateUI();
+              widget.updateUICallback();
             },
           );
         },
@@ -65,24 +70,27 @@ class _TaskListScreenState extends State<TaskListScreen> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('Create a New Task'),
+                title: Text('Create a New Task'),
                 content: TextField(
                   controller: taskNameController,
-                  decoration: const InputDecoration(labelText: 'Task Name'),
+                  decoration: InputDecoration(labelText: 'Task Name'),
                 ),
                 actions: <Widget>[
                   TextButton(
-                    child: const Text('Cancel'),
+                    child: Text('Cancel'),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                   ),
                   TextButton(
-                    child: const Text('Create'),
+                    child: Text('Create'),
                     onPressed: () {
-                      // Use the updated function to add a task and trigger UI update
-                      addTaskAndRefreshUI(taskNameController.text);
-
+                      String taskName = taskNameController.text;
+                      if (taskName.isNotEmpty) {
+                        widget.addTaskCallback(widget.project.name,
+                            Task(taskName, [], null, null));
+                        widget.updateUICallback();
+                      }
                       // Close the dialog
                       Navigator.of(context).pop();
                     },
@@ -92,14 +100,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
             },
           );
         },
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add),
       ),
     );
-  }
-
-  void addTask(Project project, Task task) {
-    setState(() {
-      project.tasks.add(task);
-    });
   }
 }

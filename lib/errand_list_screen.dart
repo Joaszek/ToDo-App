@@ -1,3 +1,5 @@
+// errand_list_screen.dart
+
 import 'package:flutter/material.dart';
 import 'models.dart';
 
@@ -7,8 +9,8 @@ class ErrandListScreen extends StatefulWidget {
   final Function(String, String, Errand) addErrandCallback;
   final VoidCallback updateUICallback;
 
-  const ErrandListScreen(
-      this.project, this.task, this.addErrandCallback, this.updateUICallback, {super.key});
+  ErrandListScreen(
+      this.project, this.task, this.addErrandCallback, this.updateUICallback);
 
   @override
   _ErrandListScreenState createState() => _ErrandListScreenState();
@@ -31,26 +33,26 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
         children: [
           // Add the option to upload a file for the task
           ListTile(
-            title: const Text("Upload File"),
+            title: Text("Upload File"),
             onTap: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Upload File'),
+                    title: Text('Upload File'),
                     content: TextField(
                       controller: fileController,
-                      decoration: const InputDecoration(labelText: 'File URL'),
+                      decoration: InputDecoration(labelText: 'File URL'),
                     ),
                     actions: <Widget>[
                       TextButton(
-                        child: const Text('Cancel'),
+                        child: Text('Cancel'),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       ),
                       TextButton(
-                        child: const Text('Upload'),
+                        child: Text('Upload'),
                         onPressed: () {
                           String fileUrl = fileController.text;
                           if (fileUrl.isNotEmpty) {
@@ -69,26 +71,26 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
           ),
           // Add the option to add a link for the task
           ListTile(
-            title: const Text("Add Link"),
+            title: Text("Add Link"),
             onTap: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Add Link'),
+                    title: Text('Add Link'),
                     content: TextField(
                       controller: linkController,
-                      decoration: const InputDecoration(labelText: 'Link URL'),
+                      decoration: InputDecoration(labelText: 'Link URL'),
                     ),
                     actions: <Widget>[
                       TextButton(
-                        child: const Text('Cancel'),
+                        child: Text('Cancel'),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       ),
                       TextButton(
-                        child: const Text('Add'),
+                        child: Text('Add'),
                         onPressed: () {
                           String linkUrl = linkController.text;
                           if (linkUrl.isNotEmpty) {
@@ -113,20 +115,20 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('Create a New Errand'),
+                title: Text('Create a New Errand'),
                 content: TextField(
                   controller: errandNameController,
-                  decoration: const InputDecoration(labelText: 'Errand Name'),
+                  decoration: InputDecoration(labelText: 'Errand Name'),
                 ),
                 actions: <Widget>[
                   TextButton(
-                    child: const Text('Cancel'),
+                    child: Text('Cancel'),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                   ),
                   TextButton(
-                    child: const Text('Create'),
+                    child: Text('Create'),
                     onPressed: () {
                       String errandName = errandNameController.text;
                       if (errandName.isNotEmpty) {
@@ -147,7 +149,7 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
             },
           );
         },
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add),
       ),
     );
   }
