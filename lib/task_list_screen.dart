@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'errand_list_screen.dart';
 import 'models.dart';
+import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in deadline functionality
 
 class TaskListScreen extends StatefulWidget {
   final Project project;
@@ -23,6 +24,15 @@ class TaskListScreen extends StatefulWidget {
 
 class _TaskListScreenState extends State<TaskListScreen> {
   final TextEditingController taskNameController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  TextEditingController _timeController = TextEditingController();
+  bool isCheckboxChecked = false;
+
+  late TimeInputFormatter _timeInputFormatter;
+  _TaskListScreenState() {
+    // Initialize _timeInputFormatter in the constructor
+    _timeInputFormatter = TimeInputFormatter();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +81,165 @@ class _TaskListScreenState extends State<TaskListScreen> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: Text('Create a New Task'),
-                content: TextField(
-                  controller: taskNameController,
-                  decoration: InputDecoration(labelText: 'Task Name'),
+                content: SingleChildScrollView(
+                  child: StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: taskNameController,
+                            decoration:
+                            InputDecoration(labelText: 'Task Name'),
+                          ),
+                          SizedBox(height: 100),
+                          Text('Deadline'),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment
+                                .start,
+                            children: [
+                              Text('Date:'),
+                              SizedBox(width: 5),
+                              Flexible(
+                                child: TextField(
+                                  controller: _dateController,
+                                  decoration: InputDecoration(
+                                    labelText: 'YYYY-MM-DD',
+                                  ),
+                                  keyboardType: TextInputType
+                                      .datetime,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter
+                                        .digitsOnly,
+                                    LengthLimitingTextInputFormatter(
+                                        10),
+                                    // Add custom input formatter for date format
+                                    DateInputFormatter(),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.calendar_month),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Select date'),
+                                        content: StatefulBuilder(
+                                          builder: (
+                                              BuildContext context,
+                                              StateSetter setState) {
+                                            return CalendarPopup(
+                                                setState: setState);
+                                          },
+                                        ),
+                                        actions: <Widget>[
+                                          new TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context)
+                                                  .pop();
+                                            },
+                                            child: const Text(
+                                                'Select'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .start,
+                              children: [
+                                Text('Time:'),
+                                SizedBox(width: 5),
+                                Flexible(child: TextField(
+                                  controller: _timeController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Enter time (HH:MM)',
+                                  ),
+                                  keyboardType: TextInputType
+                                      .datetime,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter
+                                        .digitsOnly,
+                                    LengthLimitingTextInputFormatter(
+                                        4),
+                                    _timeInputFormatter,
+                                  ],
+                                ),),
+                                IconButton(
+                                  icon: Icon(Icons.access_time),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (
+                                          BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Select time'),
+                                          content: StatefulBuilder(
+                                            builder: (
+                                                BuildContext context,
+                                                StateSetter setState) {
+                                              return TimePickerPopup(
+                                                  setState: setState);
+                                            },
+                                          ),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context)
+                                                    .pop();
+                                              },
+                                              child: const Text(
+                                                  'Select'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ]
+                          ),
+                          Row(
+                            children: [
+                              Text('Free deadline'),
+                              Checkbox(
+                                value: isCheckboxChecked,
+                                onChanged: (value) {
+                                  setState(() {
+                                    isCheckboxChecked =
+                                        value ?? false;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          Row(
+                              children: [
+                                Flexible(child: TextField(
+                                  enabled: isCheckboxChecked,
+                                ),
+                                ),
+                                Text("Month"),
+                                Flexible( child: TextField(
+                                  enabled: isCheckboxChecked,
+                                ),
+                                ),
+                                Text("Day"),
+                              ]
+                          )
+
+                        ],
+                      );
+                    },
+                  ),
                 ),
                 actions: <Widget>[
                   TextButton(
