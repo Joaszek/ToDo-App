@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'task_list_screen.dart';
 import 'models.dart';
 import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in deadline functionality
+import 'main_view.dart';
 
 class ProjectListScreen extends StatefulWidget {
   @override
@@ -89,16 +90,13 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     setState(() {});
   }
 
-  void exploreProject(Project project) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TaskListScreen(
-          project: project,
-          addTaskCallback: addTask,
-          updateUICallback: updateUI,
-          addErrandCallback: addErrand,
-        ),
+  MaterialPageRoute<void> exploreProject(Project project) {
+    return MaterialPageRoute<void>(
+      builder: (context) => TaskListScreen(
+        project: project,
+        addTaskCallback: addTask,
+        updateUICallback: updateUI,
+        addErrandCallback: addErrand,
       ),
     );
   }
@@ -404,12 +402,26 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     ),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.search),
+                    icon: Icon(Icons.visibility),
                     tooltip: 'Explore',
                     onPressed: () {
-                      exploreProject(project);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MainViewPage()),
+                      );
+                      print('visibility pressed for Item 1');
                     },
                   ),
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      exploreProject(project),
+                    );
+
+                    // When returning from the TaskListScreen, update the UI to
+                    // reflect the new task completion status.
+                    setState(() {});
+                  },
                 );
               },
             ),
