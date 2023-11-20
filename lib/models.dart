@@ -34,6 +34,34 @@ class Project {
   Project(this.name, this.tasks);
 }
 
+class Event {
+  final String title;
+  final Priority priority;
+  final Color color;
+
+  Event(this.title, {required this.priority})
+      : color = _getColorForPriority(priority);
+
+  static Color _getColorForPriority(Priority priority) {
+    switch (priority) {
+      case Priority.high:
+        return Colors.red;
+      case Priority.medium:
+        return Colors.orange;
+      case Priority.low:
+        return Colors.green;
+      default:
+        return Colors.blue;
+    }
+  }
+}
+
+enum Priority {
+  high,
+  medium,
+  low,
+}
+
 
 //************* USED FOR CLOCK WIDGET *************//
 
@@ -52,7 +80,7 @@ class _TimePickerPopupState extends State<TimePickerPopup> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _selectTime(context);
     });
   }
@@ -164,6 +192,95 @@ class DateInputFormatter extends TextInputFormatter {
       text: newText,
       selection: TextSelection.collapsed(offset: newText.length),
     );
+  }
+}
+//***************************************************//
+
+//************* USED FOR FRONT CALENDAR *************//
+class DateList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Get the first 50 dates starting from today
+    List<DateTime> firstThirtyDates = List.generate(
+      30,
+          (index) => DateTime.now().add(Duration(days: index)),
+    );
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: firstThirtyDates
+            .map(
+              (date) => DateItem(date: date, events: getSampleEvents(date.day)),
+        )
+            .toList(),
+      ),
+    );
+  }
+
+  // Sample function to generate events for demonstration purposes
+  List<Event> getSampleEvents(int day) {
+    if (day % 2 == 0) {
+      return [Event('Task 1', priority: Priority.high), Event('Task 1', priority: Priority.medium)];
+    } else {
+      return [Event('Task 1', priority: Priority.low)];
+    }
+  }
+}
+
+class DateItem extends StatelessWidget {
+  final DateTime date;
+  final List<Event> events;
+
+  DateItem({required this.date, required this.events});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 50, // Set a fixed width for the DateItem
+      height: 70, // Set a fixed height for the DateItem
+      margin: EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white, // Set the background color of the smaller container
+        border: Border.all(color: Colors.blue),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            getMonthAbbreviation(date.month),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            '${date.day}',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: events.map((event) {
+              return Container(
+                margin: EdgeInsets.only(right: 4),
+                width: 6, // Adjust the width of the dots
+                height: 6, // Adjust the height of the dots
+                decoration: BoxDecoration(
+                  color: event.color,
+                  shape: BoxShape.circle,
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String getMonthAbbreviation(int month) {
+    final monthNames = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return monthNames[month - 1];
   }
 }
 //***************************************************//
