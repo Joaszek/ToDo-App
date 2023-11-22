@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'models.dart';
 
 class CalendarViewPage extends StatefulWidget {
   @override
@@ -13,11 +14,11 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
   void initState() {
     super.initState();
     _events = {
-      DateTime(2023, 11, 17): [
+      DateTime(2023, 11, 25): [
         Event('Task 1', priority: Priority.high),
         Event('Task 2', priority: Priority.medium),
       ],
-      DateTime(2023, 11, 20): [
+      DateTime(2023, 11, 30): [
         Event('Task 3', priority: Priority.low),
       ],
       // Add more events as needed
@@ -60,25 +61,12 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
           startTime: date,
           endTime: date.add(Duration(hours: 1)),
           subject: event.title,
-          color: _getPriorityColor(event.priority),
+          color: event.color,
         ));
       });
     });
 
     return _DataSource(appointments);
-  }
-
-  Color _getPriorityColor(Priority priority) {
-    switch (priority) {
-      case Priority.high:
-        return Colors.red;
-      case Priority.medium:
-        return Colors.orange;
-      case Priority.low:
-        return Colors.green;
-      default:
-        return Colors.blue;
-    }
   }
 }
 
@@ -88,15 +76,4 @@ class _DataSource extends CalendarDataSource {
   }
 }
 
-class Event {
-  final String title;
-  final Priority priority;
 
-  Event(this.title, {required this.priority});
-}
-
-enum Priority {
-  high,
-  medium,
-  low,
-}

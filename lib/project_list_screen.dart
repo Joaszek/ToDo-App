@@ -379,6 +379,23 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
               ),
             ],
           ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainViewPage())
+              );
+              print('calendar opened!');
+            },
+            child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  color: Colors.lightBlue, // Set the color of the larger container
+                  child: DateList(),
+                )
+            ),
+          ),
           AppBar(
             title: Text('Projects', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,

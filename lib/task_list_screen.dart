@@ -255,7 +255,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       if (taskName.isNotEmpty) {
                         widget.addTaskCallback(widget.project.name,
                             Task(taskName, [], null, null));
-                        widget.updateUICallback();
+                        setState(() {
+                          widget.updateUICallback();
+                        });
                       }
                       // Close the dialog
                       Navigator.of(context).pop();
