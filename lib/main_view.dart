@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'due_date_priority_view.dart';
 import 'priority_view.dart';
 import 'calendar_view.dart';
 
@@ -23,9 +24,10 @@ class _MainViewState extends State<MainViewPage> {
             _currentPage = index;
           });
         },
-        children: [
-          const CalendarViewPage(),
+        children: const [
+          CalendarViewPage(),
           PriorityViewPage(),
+          DueDatePriorityViewPage()
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -46,6 +48,10 @@ class _MainViewState extends State<MainViewPage> {
             icon: Icon(Icons.star),
             label: 'Priority',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.access_alarm_rounded),
+            label: 'Due Date',
+          )
         ],
       ),
     );
