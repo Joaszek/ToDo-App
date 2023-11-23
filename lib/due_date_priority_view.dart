@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 
 
-class PriorityViewPage extends StatelessWidget {
-  const PriorityViewPage({super.key});
+class DueDatePriorityViewPage extends StatelessWidget {
+  const DueDatePriorityViewPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Priority Task List')),
+      appBar: AppBar(title: const Text('Due Date Task List')),
       body: Column(
         children: [
           Expanded(
-            child: prioritySection(
-                'High Priority', 5), // Liczba przycisków dla tej sekcji
+            child:
+            prioritySection('Today', 5),
           ),
           Expanded(
             child: prioritySection(
-                'Medium Priority', 5), // Liczba przycisków dla tej sekcji
+                'This week', 5),
           ),
           Expanded(
             child: prioritySection(
-                'Low Priority', 8), // Liczba przycisków dla tej sekcji
+                'This month', 8),
           ),
         ],
       ),
