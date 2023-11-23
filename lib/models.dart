@@ -68,7 +68,7 @@ enum Priority {
 class TimePickerPopup extends StatefulWidget {
   final StateSetter setState;
 
-  TimePickerPopup({required this.setState});
+  const TimePickerPopup({super.key, required this.setState});
 
   @override
   _TimePickerPopupState createState() => _TimePickerPopupState();
@@ -93,10 +93,10 @@ class _TimePickerPopupState extends State<TimePickerPopup> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             'Selected Time: ${_selectedTime.format(context)}',
-            style: TextStyle(fontSize: 20.0),
+            style: const TextStyle(fontSize: 20.0),
           ),
         ],
       ),
@@ -123,7 +123,7 @@ class TimeInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     var newText = newValue.text;
-    if (newText.length > 0) {
+    if (newText.isNotEmpty) {
       if (newText.length >= 3) {
         final hour = newText.substring(0, 2);
         final minute = newText.substring(2);
@@ -142,14 +142,14 @@ class TimeInputFormatter extends TextInputFormatter {
 class CalendarPopup extends StatefulWidget {
   final StateSetter setState;
 
-  CalendarPopup({required this.setState});
+  const CalendarPopup({super.key, required this.setState});
 
   @override
   _CalendarPopupState createState() => _CalendarPopupState();
 }
 
 class _CalendarPopupState extends State<CalendarPopup> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
 
@@ -198,6 +198,8 @@ class DateInputFormatter extends TextInputFormatter {
 
 //************* USED FOR FRONT CALENDAR *************//
 class DateList extends StatelessWidget {
+  const DateList({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Get the first 50 dates starting from today
@@ -232,15 +234,15 @@ class DateItem extends StatelessWidget {
   final DateTime date;
   final List<Event> events;
 
-  DateItem({required this.date, required this.events});
+  const DateItem({super.key, required this.date, required this.events});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 50, // Set a fixed width for the DateItem
       height: 70, // Set a fixed height for the DateItem
-      margin: EdgeInsets.symmetric(horizontal: 4),
-      padding: EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white, // Set the background color of the smaller container
         border: Border.all(color: Colors.blue),
@@ -251,17 +253,17 @@ class DateItem extends StatelessWidget {
         children: [
           Text(
             getMonthAbbreviation(date.month),
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
           Text(
             '${date.day}',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: events.map((event) {
               return Container(
-                margin: EdgeInsets.only(right: 4),
+                margin: const EdgeInsets.only(right: 4),
                 width: 6, // Adjust the width of the dots
                 height: 6, // Adjust the height of the dots
                 decoration: BoxDecoration(

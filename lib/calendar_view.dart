@@ -3,6 +3,8 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'models.dart';
 
 class CalendarViewPage extends StatefulWidget {
+  const CalendarViewPage({super.key});
+
   @override
   _CalendarViewPageState createState() => _CalendarViewPageState();
 }
@@ -29,7 +31,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Calendar view'),
+        title: const Text('Calendar view'),
       ),
       body: Center(
         child: SfCalendar(
@@ -38,13 +40,10 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
           onTap: (CalendarTapDetails details) {
             if (details.targetElement == CalendarElement.calendarCell) {
               DateTime selectedDate = details.date!;
-              List<Event> events = _events[selectedDate] ?? [];
-              print('Selected date: $selectedDate');
-              print('Events: $events');
               // Handle day selection as needed
             }
           },
-          monthViewSettings: MonthViewSettings(
+          monthViewSettings: const MonthViewSettings(
             appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
           ),
         ),
@@ -59,7 +58,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
       events.forEach((event) {
         appointments.add(Appointment(
           startTime: date,
-          endTime: date.add(Duration(hours: 1)),
+          endTime: date.add(const Duration(hours: 1)),
           subject: event.title,
           color: event.color,
         ));

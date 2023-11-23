@@ -11,7 +11,7 @@ class TaskListScreen extends StatefulWidget {
   final Function(String, String, Errand) addErrandCallback;
   final VoidCallback updateUICallback;
 
-  TaskListScreen({
+  const TaskListScreen({super.key,
     required this.project,
     required this.addTaskCallback,
     required this.updateUICallback,
@@ -24,8 +24,8 @@ class TaskListScreen extends StatefulWidget {
 
 class _TaskListScreenState extends State<TaskListScreen> {
   final TextEditingController taskNameController = TextEditingController();
-  TextEditingController _dateController = TextEditingController();
-  TextEditingController _timeController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _timeController = TextEditingController();
   bool isCheckboxChecked = false;
 
   late TimeInputFormatter _timeInputFormatter;
@@ -80,7 +80,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Create a New Task'),
+                title: const Text('Create a New Task'),
                 content: SingleChildScrollView(
                   child: StatefulBuilder(
                     builder: (BuildContext context, StateSetter setState) {
@@ -90,20 +90,20 @@ class _TaskListScreenState extends State<TaskListScreen> {
                           TextField(
                             controller: taskNameController,
                             decoration:
-                            InputDecoration(labelText: 'Task Name'),
+                            const InputDecoration(labelText: 'Task Name'),
                           ),
-                          SizedBox(height: 100),
-                          Text('Deadline'),
+                          const SizedBox(height: 100),
+                          const Text('Deadline'),
                           Row(
                             mainAxisAlignment: MainAxisAlignment
                                 .start,
                             children: [
-                              Text('Date:'),
-                              SizedBox(width: 5),
+                              const Text('Date:'),
+                              const SizedBox(width: 5),
                               Flexible(
                                 child: TextField(
                                   controller: _dateController,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     labelText: 'YYYY-MM-DD',
                                   ),
                                   keyboardType: TextInputType
@@ -119,13 +119,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.calendar_month),
+                                icon: const Icon(Icons.calendar_month),
                                 onPressed: () {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text('Select date'),
+                                        title: const Text('Select date'),
                                         content: StatefulBuilder(
                                           builder: (
                                               BuildContext context,
@@ -135,7 +135,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                           },
                                         ),
                                         actions: <Widget>[
-                                          new TextButton(
+                                          TextButton(
                                             onPressed: () {
                                               Navigator.of(context)
                                                   .pop();
@@ -151,16 +151,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Row(
                               mainAxisAlignment: MainAxisAlignment
                                   .start,
                               children: [
-                                Text('Time:'),
-                                SizedBox(width: 5),
+                                const Text('Time:'),
+                                const SizedBox(width: 5),
                                 Flexible(child: TextField(
                                   controller: _timeController,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     labelText: 'Enter time (HH:MM)',
                                   ),
                                   keyboardType: TextInputType
@@ -174,14 +174,14 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                   ],
                                 ),),
                                 IconButton(
-                                  icon: Icon(Icons.access_time),
+                                  icon: const Icon(Icons.access_time),
                                   onPressed: () {
                                     showDialog(
                                       context: context,
                                       builder: (
                                           BuildContext context) {
                                         return AlertDialog(
-                                          title: Text('Select time'),
+                                          title: const Text('Select time'),
                                           content: StatefulBuilder(
                                             builder: (
                                                 BuildContext context,
@@ -191,7 +191,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                             },
                                           ),
                                           actions: <Widget>[
-                                            new TextButton(
+                                            TextButton(
                                               onPressed: () {
                                                 Navigator.of(context)
                                                     .pop();
@@ -209,7 +209,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                           ),
                           Row(
                             children: [
-                              Text('Free deadline'),
+                              const Text('Free deadline'),
                               Checkbox(
                                 value: isCheckboxChecked,
                                 onChanged: (value) {
@@ -227,12 +227,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                   enabled: isCheckboxChecked,
                                 ),
                                 ),
-                                Text("Month"),
+                                const Text("Month"),
                                 Flexible( child: TextField(
                                   enabled: isCheckboxChecked,
                                 ),
                                 ),
-                                Text("Day"),
+                                const Text("Day"),
                               ]
                           )
 
@@ -243,13 +243,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 ),
                 actions: <Widget>[
                   TextButton(
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                   ),
                   TextButton(
-                    child: Text('Create'),
+                    child: const Text('Create'),
                     onPressed: () {
                       String taskName = taskNameController.text;
                       if (taskName.isNotEmpty) {
@@ -268,7 +268,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
             },
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

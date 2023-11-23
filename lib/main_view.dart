@@ -3,6 +3,8 @@ import 'priority_view.dart';
 import 'calendar_view.dart';
 
 class MainViewPage extends StatefulWidget {
+  const MainViewPage({super.key});
+
   @override
   _MainViewState createState() => _MainViewState();
 }
@@ -22,7 +24,7 @@ class _MainViewState extends State<MainViewPage> {
           });
         },
         children: [
-          CalendarViewPage(),
+          const CalendarViewPage(),
           PriorityViewPage(),
         ],
       ),
@@ -31,11 +33,11 @@ class _MainViewState extends State<MainViewPage> {
         onTap: (index) {
           _pageController.animateToPage(
             index,
-            duration: Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Calendar',
