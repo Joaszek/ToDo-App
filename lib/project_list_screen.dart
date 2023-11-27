@@ -18,13 +18,18 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   final TextEditingController singleTaskController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
+  TextEditingController _freeMonthController = TextEditingController();
+  TextEditingController _freeDayController = TextEditingController();
   bool isCheckboxChecked = false;
+  DateTime selectedDate = DateTime.now(); // Variable to store the selected date from tablecalendar CalendarPopUp
+  TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
 
   late TimeInputFormatter _timeInputFormatter;
   _ProjectListScreenState() {
     // Initialize _timeInputFormatter in the constructor
     _timeInputFormatter = TimeInputFormatter();
   }
+
 
   final List<Project> projects = [
     Project('Project 1', [
@@ -35,11 +40,19 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             Errand('Errand 1.1.2', true),
           ],
           null,
-          null),
-      Task('Task 1.2', [], null, null),
+          null,
+          deadline: null
+          ),
+      Task('Task 1.2', [], null, null, deadline:Deadline(
+        date: DateTime(2023, 12, 30), // specify the date component
+        time: TimeOfDay(hour: 14, minute: 30), // Specify the time component
+      )),
     ]),
     Project('Project 2', [
-      Task('Task 2.1', [], null, null),
+      Task('Task 2.1', [], null, null, deadline:Deadline(
+        date: DateTime(2023, 12, 30), // specify the date component
+        time: TimeOfDay(hour: 14, minute: 30), // Specify the time component
+      )),
       Task(
           'Task 2.2',
           [
@@ -47,7 +60,11 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             Errand('Errand 2.2.2', false),
           ],
           null,
-          null),
+          null,
+          deadline:Deadline(
+          date: DateTime(2023, 12, 31), // specify the date component
+          time: TimeOfDay(hour: 15, minute: 30)) // Specify the time component
+      ),
     ]),
   ];
 
@@ -57,6 +74,15 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     setState(() {
       projects.add(Project(projectName, []));
     });
+  }
+
+  int findProjectIndex(String projectName) {
+    for (int i = 0; i < projects.length; i++) {
+      if (projects[i].name == projectName) {
+        return i;
+      }
+    }
+    return -1; // Return -1 if the project is not found
   }
 
 // Define the addTask function
@@ -87,9 +113,24 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     }
   }
 
-// Define the updateUI function
+  // Define the updateUI function
   void updateUI() {
     setState(() {});
+  }
+
+  // Function to convert DateTime to String with the format yyyy-MM-dd
+  String formatDate(DateTime dateTime) {
+    String year = dateTime.year.toString();
+    String month = dateTime.month.toString().padLeft(2, '0');
+    String day = dateTime.day.toString().padLeft(2, '0');
+
+    return '$year-$month-$day';
+  }
+  // Function to convert TimeOfDay to String with the format HH:mm
+  String formatTimeOfDay(TimeOfDay timeOfDay) {
+    final String hour = timeOfDay.hour.toString().padLeft(2, '0');
+    final String minute = timeOfDay.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   MaterialPageRoute<void> exploreProject(Project project) {
@@ -235,17 +276,21 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                                         BuildContext context,
                                                         StateSetter setState) {
                                                       return CalendarPopup(
-                                                          setState: setState);
+                                                          setState: setState,
+                                                          onDaySelected: (day) {
+                                                            selectedDate = day; // Capture the selected date
+                                                            _dateController.text = formatDate(day);
+                                                          }
+                                                      );
                                                     },
                                                   ),
                                                   actions: <Widget>[
                                                     TextButton(
                                                       onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
+                                                        print('Selected Date from tablecalendar: $selectedDate');
+                                                        Navigator.of(context).pop();
                                                       },
-                                                      child: const Text(
-                                                          'Select'),
+                                                      child: const Text('Select'),
                                                     ),
                                                   ],
                                                 );
@@ -291,19 +336,15 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                                           BuildContext context,
                                                           StateSetter setState) {
                                                         return TimePickerPopup(
-                                                            setState: setState);
+                                                            setState: setState,
+                                                            onTimeSelected: (time) {
+                                                              selectedTime = time;
+                                                              print('Selected Time hehe: $selectedTime'); // Handle the selected time
+                                                              _timeController.text = formatTimeOfDay(time);
+                                                            }
+                                                        );
                                                       },
                                                     ),
-                                                    actions: <Widget>[
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                        child: const Text(
-                                                            'Select'),
-                                                      ),
-                                                    ],
                                                   );
                                                 },
                                               );
@@ -329,13 +370,23 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                         children: [
                                           Flexible(child: TextField(
                                             enabled: isCheckboxChecked,
-                                          ),
-                                          ),
+                                            controller: _freeMonthController,
+                                            decoration: const InputDecoration(
+                                              labelText: '(MM)',
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            inputFormatters: [TwoDigitInputFormatter()],
+                                          ),),
                                           const Text("Month"),
                                           Flexible( child: TextField(
                                             enabled: isCheckboxChecked,
-                                          ),
-                                          ),
+                                            controller: _freeDayController,
+                                            decoration: const InputDecoration(
+                                              labelText: '(dd)',
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            inputFormatters: [TwoDigitInputFormatter()],
+                                          ),),
                                           const Text("Day"),
                                         ]
                                     )
@@ -385,7 +436,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             onTap: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MainViewPage())
+                  MaterialPageRoute(builder: (context) => MainViewPage(project: projects[1]))
               );
               print('calendar opened!');
             },
@@ -424,11 +475,15 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     icon: const Icon(Icons.visibility),
                     tooltip: 'Explore',
                     onPressed: () {
+                      print('visibility pressed for Item 1');
+                      int index = findProjectIndex(project.name);
+                      String projectNameToFind = project.name;
+                      print('Project "$projectNameToFind" found at index: $index');
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MainViewPage()),
+                        MaterialPageRoute(builder: (context) => MainViewPage(project: projects[index])),
                       );
-                      print('visibility pressed for Item 1');
+
                     },
                   ),
                   onTap: () async {

@@ -3,7 +3,9 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'models.dart';
 
 class CalendarViewPage extends StatefulWidget {
-  const CalendarViewPage({super.key});
+  final Project project;
+
+  const CalendarViewPage({Key? key, required this.project}) : super(key: key);
 
   @override
   _CalendarViewPageState createState() => _CalendarViewPageState();
@@ -12,9 +14,37 @@ class CalendarViewPage extends StatefulWidget {
 class _CalendarViewPageState extends State<CalendarViewPage> {
   Map<DateTime, List<Event>> _events = {};
 
+  void _addProjectEvents(Project project) {
+    // Assuming your Project, Task, and Errand classes have deadline information
+    project.tasks.forEach((task) {
+      // Check if the task has a deadline
+      if (task.deadline != null) {
+        DateTime deadlineDate = task.deadline!.date ?? DateTime.now();
+        TimeOfDay deadlineTime = task.deadline!.time ?? TimeOfDay.now();
+
+        DateTime deadlineDateTime = DateTime(
+          deadlineDate.year,
+          deadlineDate.month,
+          deadlineDate.day,
+          deadlineTime.hour,
+          deadlineTime.minute,
+        );
+
+        _events.putIfAbsent(deadlineDateTime, () => []);
+        _events[deadlineDateTime]!.add(Event(task.name, priority: task.priority));
+      }
+    });
+
+    setState(() {
+      // Update the calendar after adding events
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _addProjectEvents(widget.project);
+    """
     _events = {
       DateTime(2023, 11, 25): [
         Event('Task 1', priority: Priority.high),
@@ -25,6 +55,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
       ],
       // Add more events as needed
     };
+    """;
   }
 
   @override
@@ -40,8 +71,22 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
           onTap: (CalendarTapDetails details) {
             if (details.targetElement == CalendarElement.calendarCell) {
               DateTime selectedDate = details.date!;
+              print(selectedDate);
               // Handle day selection as needed
             }
+
+            // sample usecase
+            //print(widget.project.name);
+            //widget.project.tasks.forEach((task) {
+            //  print(task.name);
+            //  print('Task Deadline Date: ${task.deadline?.date}');
+            //  print('Task Deadline Time: ${task.deadline?.time}');
+            //  task.errands.forEach((errand) {
+            //    print(errand.name);
+            //  });
+            //});
+
+
           },
           monthViewSettings: const MonthViewSettings(
             appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
