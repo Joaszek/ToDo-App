@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'due_date_priority_view.dart';
 import 'priority_view.dart';
 import 'calendar_view.dart';
+import 'models.dart';
 
 class MainViewPage extends StatefulWidget {
-  const MainViewPage({super.key});
+  final Project project;
+
+  const  MainViewPage({Key? key, required this.project}) : super(key: key);
 
   @override
   _MainViewState createState() => _MainViewState();
@@ -24,8 +27,8 @@ class _MainViewState extends State<MainViewPage> {
             _currentPage = index;
           });
         },
-        children: const [
-          CalendarViewPage(),
+        children: [
+          CalendarViewPage(project: widget.project), // widget. is to get the member from MainViewPage class
           PriorityViewPage(),
           DueDatePriorityViewPage()
         ],
@@ -38,6 +41,19 @@ class _MainViewState extends State<MainViewPage> {
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
+
+
+          print(widget.project.name);
+          widget.project.tasks.forEach((task) {
+            print(task.name);
+            print('Task Deadline Date: ${task.deadline?.date}');
+            print('Task Deadline Time: ${task.deadline?.time}');
+            task.errands.forEach((errand) {
+              print(errand.name);
+            });
+          });
+
+
         },
         items: const [
           BottomNavigationBarItem(

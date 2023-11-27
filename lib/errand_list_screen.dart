@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'models.dart';
+import 'package:intl/intl.dart';
 
 class ErrandListScreen extends StatefulWidget {
   final Project project;
@@ -28,9 +29,40 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.task.name),
+        actions: [
+          if (widget.task.deadline != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Deadline: ${DateFormat('yyyy-MM-dd').format(widget.task.deadline!.date ?? DateTime.now())}',
+                style: TextStyle(fontSize: 16),
+              ),
+            )
+          else
+            SizedBox(width: 8.0), // Empty space if no deadline
+        ],
       ),
       body: Column(
         children: [
+          Expanded(
+              child: ListView.builder(
+                itemCount: widget.task.errands.length,
+                itemBuilder: (context, index) {
+                  Errand errand = widget.task.errands[index];
+                  return ListTile(
+                    title: Text(errand.name),
+                    leading: Checkbox(
+                      value: errand.isComplete,
+                      onChanged: (value) {
+                        setState(() {
+                          errand.isComplete = value ?? false;
+                        });
+                      },
+                    ),
+                  );
+                },
+              )
+          ),
           // Add the option to upload a file for the task
           ListTile(
             title: const Text("Upload File"),
@@ -137,9 +169,10 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
                           widget.task.name,
                           Errand(errandName, false),
                         );
-
-                        // Update the UI
-                        widget.updateUICallback();
+                        // Update the UI after creating a new errand
+                        setState(() {
+                          widget.updateUICallback();
+                        });
                       }
                       Navigator.of(context).pop();
                     },

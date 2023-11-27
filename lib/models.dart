@@ -6,8 +6,9 @@ import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in ca
 
 class Deadline {
   DateTime? date;
+  TimeOfDay? time;
 
-  Deadline(this.date);
+  Deadline({this.date, this.time});
 }
 
 class Errand {
@@ -23,8 +24,25 @@ class Task {
   String? file; // File associated with the task (can be a single file)
   String? link; // Link associated with the task (can be a single link)
   Deadline? deadline; // use ? so that it can be a null value
+  final Priority priority;
+  final Color color;
 
-  Task(this.name, this.errands, this.file, this.link, {this.deadline});
+  Task(this.name, this.errands, this.file, this.link, {this.deadline, Priority priority = Priority.low})
+      : priority = priority,
+        color = _getColorForPriority(priority);
+
+  static Color _getColorForPriority(Priority priority) {
+    switch (priority) {
+      case Priority.high:
+        return Colors.red;
+      case Priority.medium:
+        return Colors.orange;
+      case Priority.low:
+        return Colors.green;
+      default:
+        return Colors.blue;
+    }
+  }
 }
 
 class Project {
@@ -67,8 +85,9 @@ enum Priority {
 
 class TimePickerPopup extends StatefulWidget {
   final StateSetter setState;
+  final void Function(TimeOfDay selectedTime) onTimeSelected;
 
-  const TimePickerPopup({super.key, required this.setState});
+  const TimePickerPopup({super.key, required this.setState, required this.onTimeSelected});
 
   @override
   _TimePickerPopupState createState() => _TimePickerPopupState();
@@ -113,6 +132,7 @@ class _TimePickerPopupState extends State<TimePickerPopup> {
         _selectedTime = picked;
       });
       print('Selected Time: ${_selectedTime.format(context)}'); // Print the selected time
+      widget.onTimeSelected(_selectedTime); // Call the callback with the selected time
     }
     Navigator.pop(context); // Close the popup after selecting the time
   }
@@ -141,8 +161,9 @@ class TimeInputFormatter extends TextInputFormatter {
 //************* USED FOR CALENDAR WIDGET *************//
 class CalendarPopup extends StatefulWidget {
   final StateSetter setState;
+  final void Function(DateTime selectedDay) onDaySelected; //callback to get the selectedDay
 
-  const CalendarPopup({super.key, required this.setState});
+  const CalendarPopup({super.key, required this.setState, required this.onDaySelected});
 
   @override
   _CalendarPopupState createState() => _CalendarPopupState();
@@ -171,6 +192,7 @@ class _CalendarPopupState extends State<CalendarPopup> {
             _selectedDay = selectedDay;
             _focusedDay = focusedDay;
           });
+          widget.onDaySelected(selectedDay); // Call the callback
         },
       ),
     );
@@ -182,6 +204,12 @@ class DateInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     String newText = newValue.text;
+
+    // Enforce a maximum length of 8 characters
+    if (newText.length > 8) {
+      newText = newText.substring(0, 8);
+    }
+
     if (newText.length == 5 && !newText.contains('-')) {
       newText = '${newText.substring(0, 4)}-${newText.substring(4)}';
     } else if (newText.length == 8 && !newText.endsWith('-')) {
@@ -195,6 +223,27 @@ class DateInputFormatter extends TextInputFormatter {
   }
 }
 //***************************************************//
+
+
+//************* USED FOR FREE DEADLINE *************//
+class TwoDigitInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String newText = newValue.text;
+
+    // Enforce a maximum length of 2 characters
+    if (newText.length > 2) {
+      newText = newText.substring(0, 2);
+    }
+
+    return TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
+    );
+  }
+}
+//***************************************************//
+
 
 //************* USED FOR FRONT CALENDAR *************//
 class DateList extends StatelessWidget {
