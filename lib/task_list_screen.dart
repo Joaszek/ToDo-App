@@ -26,11 +26,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
   final TextEditingController taskNameController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
-  TextEditingController _freeMonthController = TextEditingController();
-  TextEditingController _freeDayController = TextEditingController();
+  TextEditingController _freeMonthController = TextEditingController(text:"0");
+  TextEditingController _freeDayController = TextEditingController(text:"0");
   bool isCheckboxChecked = false;
   DateTime selectedDate = DateTime.now(); // Variable to store the selected date from tablecalendar
   TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
+
 
   late TimeInputFormatter _timeInputFormatter;
   _TaskListScreenState() {
@@ -55,6 +56,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.project.name),
@@ -283,7 +287,14 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     onPressed: () {
                       String taskName = taskNameController.text;
                       if (taskName.isNotEmpty) {
-                          if(_dateController.text == "") {
+                        if(isCheckboxChecked) {
+                          int nMonth = int.parse(_freeMonthController.text);
+                          int nDay = int.parse(_freeDayController.text);
+                          print("month is $nMonth");
+                          print("Day is $nDay");
+                        }
+                        else {
+                          if (_dateController.text == "") {
                             widget.addTaskCallback(widget.project.name,
                                 Task(taskName, [], null, null,
                                     deadline: null));
@@ -294,9 +305,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                     deadline: Deadline(date: selectedDate,
                                         time: selectedTime)));
                           }
-                          setState(() {
-                            widget.updateUICallback();
-                          });
+                        }
+
+                        setState(() {
+                          widget.updateUICallback();
+                        });
                       }
                       // Close the dialog
                       Navigator.of(context).pop();
