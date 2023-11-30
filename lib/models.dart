@@ -39,6 +39,8 @@ class Task {
         return Colors.orange;
       case Priority.low:
         return Colors.green;
+      case Priority.none:
+        return Colors.blue;
       default:
         return Colors.blue;
     }
@@ -68,6 +70,8 @@ class Event {
         return Colors.orange;
       case Priority.low:
         return Colors.green;
+      case Priority.none:
+        return Colors.blue;
       default:
         return Colors.blue;
     }
@@ -78,6 +82,7 @@ enum Priority {
   high,
   medium,
   low,
+  none,
 }
 
 

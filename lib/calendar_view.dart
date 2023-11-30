@@ -103,7 +103,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
       events.forEach((event) {
         appointments.add(Appointment(
           startTime: date,
-          endTime: date.add(const Duration(hours: 1)),
+          endTime: date.add(const Duration(hours: 0)),
           subject: event.title,
           color: event.color,
         ));
