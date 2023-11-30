@@ -6,9 +6,8 @@ import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in ca
 
 class Deadline {
   DateTime? date;
-  TimeOfDay? time;
 
-  Deadline({this.date, this.time});
+  Deadline(this.date);
 }
 
 class Errand {
@@ -24,25 +23,8 @@ class Task {
   String? file; // File associated with the task (can be a single file)
   String? link; // Link associated with the task (can be a single link)
   Deadline? deadline; // use ? so that it can be a null value
-  final Priority priority;
-  final Color color;
 
-  Task(this.name, this.errands, this.file, this.link, {this.deadline, Priority priority = Priority.low})
-      : priority = priority,
-        color = _getColorForPriority(priority);
-
-  static Color _getColorForPriority(Priority priority) {
-    switch (priority) {
-      case Priority.high:
-        return Colors.red;
-      case Priority.medium:
-        return Colors.orange;
-      case Priority.low:
-        return Colors.green;
-      default:
-        return Colors.blue;
-    }
-  }
+  Task(this.name, this.errands, this.file, this.link, {this.deadline});
 }
 
 class Project {
@@ -85,9 +67,8 @@ enum Priority {
 
 class TimePickerPopup extends StatefulWidget {
   final StateSetter setState;
-  final void Function(TimeOfDay selectedTime) onTimeSelected;
 
-  const TimePickerPopup({super.key, required this.setState, required this.onTimeSelected});
+  TimePickerPopup({required this.setState});
 
   @override
   _TimePickerPopupState createState() => _TimePickerPopupState();
@@ -112,10 +93,10 @@ class _TimePickerPopupState extends State<TimePickerPopup> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Text(
             'Selected Time: ${_selectedTime.format(context)}',
-            style: const TextStyle(fontSize: 20.0),
+            style: TextStyle(fontSize: 20.0),
           ),
         ],
       ),
@@ -132,7 +113,6 @@ class _TimePickerPopupState extends State<TimePickerPopup> {
         _selectedTime = picked;
       });
       print('Selected Time: ${_selectedTime.format(context)}'); // Print the selected time
-      widget.onTimeSelected(_selectedTime); // Call the callback with the selected time
     }
     Navigator.pop(context); // Close the popup after selecting the time
   }
@@ -143,7 +123,7 @@ class TimeInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     var newText = newValue.text;
-    if (newText.isNotEmpty) {
+    if (newText.length > 0) {
       if (newText.length >= 3) {
         final hour = newText.substring(0, 2);
         final minute = newText.substring(2);
@@ -161,16 +141,15 @@ class TimeInputFormatter extends TextInputFormatter {
 //************* USED FOR CALENDAR WIDGET *************//
 class CalendarPopup extends StatefulWidget {
   final StateSetter setState;
-  final void Function(DateTime selectedDay) onDaySelected; //callback to get the selectedDay
 
-  const CalendarPopup({super.key, required this.setState, required this.onDaySelected});
+  CalendarPopup({required this.setState});
 
   @override
   _CalendarPopupState createState() => _CalendarPopupState();
 }
 
 class _CalendarPopupState extends State<CalendarPopup> {
-  final CalendarFormat _calendarFormat = CalendarFormat.month;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
 
@@ -192,7 +171,6 @@ class _CalendarPopupState extends State<CalendarPopup> {
             _selectedDay = selectedDay;
             _focusedDay = focusedDay;
           });
-          widget.onDaySelected(selectedDay); // Call the callback
         },
       ),
     );
@@ -204,12 +182,6 @@ class DateInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     String newText = newValue.text;
-
-    // Enforce a maximum length of 8 characters
-    if (newText.length > 8) {
-      newText = newText.substring(0, 8);
-    }
-
     if (newText.length == 5 && !newText.contains('-')) {
       newText = '${newText.substring(0, 4)}-${newText.substring(4)}';
     } else if (newText.length == 8 && !newText.endsWith('-')) {
@@ -224,31 +196,8 @@ class DateInputFormatter extends TextInputFormatter {
 }
 //***************************************************//
 
-
-//************* USED FOR FREE DEADLINE *************//
-class TwoDigitInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    String newText = newValue.text;
-
-    // Enforce a maximum length of 2 characters
-    if (newText.length > 2) {
-      newText = newText.substring(0, 2);
-    }
-
-    return TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
-  }
-}
-//***************************************************//
-
-
 //************* USED FOR FRONT CALENDAR *************//
 class DateList extends StatelessWidget {
-  const DateList({super.key});
-
   @override
   Widget build(BuildContext context) {
     // Get the first 50 dates starting from today
@@ -283,15 +232,15 @@ class DateItem extends StatelessWidget {
   final DateTime date;
   final List<Event> events;
 
-  const DateItem({super.key, required this.date, required this.events});
+  DateItem({required this.date, required this.events});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 50, // Set a fixed width for the DateItem
       height: 70, // Set a fixed height for the DateItem
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      padding: const EdgeInsets.all(8),
+      margin: EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white, // Set the background color of the smaller container
         border: Border.all(color: Colors.blue),
@@ -302,17 +251,17 @@ class DateItem extends StatelessWidget {
         children: [
           Text(
             getMonthAbbreviation(date.month),
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
           Text(
             '${date.day}',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: events.map((event) {
               return Container(
-                margin: const EdgeInsets.only(right: 4),
+                margin: EdgeInsets.only(right: 4),
                 width: 6, // Adjust the width of the dots
                 height: 6, // Adjust the height of the dots
                 decoration: BoxDecoration(

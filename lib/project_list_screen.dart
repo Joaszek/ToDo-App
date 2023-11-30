@@ -7,8 +7,6 @@ import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in de
 import 'main_view.dart';
 
 class ProjectListScreen extends StatefulWidget {
-  const ProjectListScreen({super.key});
-
   @override
   _ProjectListScreenState createState() => _ProjectListScreenState();
 }
@@ -18,18 +16,13 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   final TextEditingController singleTaskController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
-  TextEditingController _freeMonthController = TextEditingController();
-  TextEditingController _freeDayController = TextEditingController();
   bool isCheckboxChecked = false;
-  DateTime selectedDate = DateTime.now(); // Variable to store the selected date from tablecalendar CalendarPopUp
-  TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
 
   late TimeInputFormatter _timeInputFormatter;
   _ProjectListScreenState() {
     // Initialize _timeInputFormatter in the constructor
     _timeInputFormatter = TimeInputFormatter();
   }
-
 
   final List<Project> projects = [
     Project('Project 1', [
@@ -40,19 +33,11 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             Errand('Errand 1.1.2', true),
           ],
           null,
-          null,
-          deadline: null
-          ),
-      Task('Task 1.2', [], null, null, deadline:Deadline(
-        date: DateTime(2023, 12, 30), // specify the date component
-        time: TimeOfDay(hour: 14, minute: 30), // Specify the time component
-      )),
+          null),
+      Task('Task 1.2', [], null, null),
     ]),
     Project('Project 2', [
-      Task('Task 2.1', [], null, null, deadline:Deadline(
-        date: DateTime(2023, 12, 30), // specify the date component
-        time: TimeOfDay(hour: 14, minute: 30), // Specify the time component
-      )),
+      Task('Task 2.1', [], null, null),
       Task(
           'Task 2.2',
           [
@@ -60,11 +45,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             Errand('Errand 2.2.2', false),
           ],
           null,
-          null,
-          deadline:Deadline(
-          date: DateTime(2023, 12, 31), // specify the date component
-          time: TimeOfDay(hour: 15, minute: 30)) // Specify the time component
-      ),
+          null),
     ]),
   ];
 
@@ -74,15 +55,6 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     setState(() {
       projects.add(Project(projectName, []));
     });
-  }
-
-  int findProjectIndex(String projectName) {
-    for (int i = 0; i < projects.length; i++) {
-      if (projects[i].name == projectName) {
-        return i;
-      }
-    }
-    return -1; // Return -1 if the project is not found
   }
 
 // Define the addTask function
@@ -113,24 +85,9 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     }
   }
 
-  // Define the updateUI function
+// Define the updateUI function
   void updateUI() {
     setState(() {});
-  }
-
-  // Function to convert DateTime to String with the format yyyy-MM-dd
-  String formatDate(DateTime dateTime) {
-    String year = dateTime.year.toString();
-    String month = dateTime.month.toString().padLeft(2, '0');
-    String day = dateTime.day.toString().padLeft(2, '0');
-
-    return '$year-$month-$day';
-  }
-  // Function to convert TimeOfDay to String with the format HH:mm
-  String formatTimeOfDay(TimeOfDay timeOfDay) {
-    final String hour = timeOfDay.hour.toString().padLeft(2, '0');
-    final String minute = timeOfDay.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
   }
 
   MaterialPageRoute<void> exploreProject(Project project) {
@@ -148,10 +105,10 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('To-Do app'),
+        title: Text('To-Do app'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: Icon(Icons.search),
             tooltip: 'Explore',
             onPressed: () {
               // Implement the desired action when the Explore button is pressed
@@ -166,7 +123,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Container(
-                margin: const EdgeInsets.all(16.0),
+                margin: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(20.0),
@@ -177,22 +134,22 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: const Text('Create a New Project'),
+                          title: Text('Create a New Project'),
                           content: TextField(
                             controller: projectNameController,
                             decoration:
-                                const InputDecoration(labelText: 'Project Name'),
+                            InputDecoration(labelText: 'Project Name'),
                           ),
                           actions: <Widget>[
                             TextButton(
-                              child: const Text('Cancel',
+                              child: Text('Cancel',
                                   style: TextStyle(color: Colors.blue)),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
                             ),
                             TextButton(
-                              child: const Text('Create',
+                              child: Text('Create',
                                   style: TextStyle(color: Colors.blue)),
                               onPressed: () {
                                 String projectName = projectNameController.text;
@@ -207,14 +164,14 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                       },
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'New Project',
                     style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
                 ),
               ),
               Container(
-                margin: const EdgeInsets.all(16.0),
+                margin: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(20.0),
@@ -225,34 +182,35 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: const Text('Create a New Task'),
+                          title: Text('Create a New Task'),
                           content: SingleChildScrollView(
                             child: StatefulBuilder(
-                              builder: (BuildContext context, StateSetter setState) {
+                              builder:
+                                  (BuildContext context, StateSetter setState) {
                                 return Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     TextField(
                                       controller: singleTaskController,
-                                      decoration:
-                                      const InputDecoration(labelText: 'Task Name'),
+                                      decoration: InputDecoration(
+                                          labelText: 'Task Name'),
                                     ),
-                                    const SizedBox(height: 100),
-                                    const Text('Deadline'),
+                                    SizedBox(height: 100),
+                                    Text('Deadline'),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment
-                                          .start,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.start,
                                       children: [
-                                        const Text('Date:'),
-                                        const SizedBox(width: 5),
+                                        Text('Date:'),
+                                        SizedBox(width: 5),
                                         Flexible(
                                           child: TextField(
                                             controller: _dateController,
-                                            decoration: const InputDecoration(
+                                            decoration: InputDecoration(
                                               labelText: 'YYYY-MM-DD',
                                             ),
-                                            keyboardType: TextInputType
-                                                .datetime,
+                                            keyboardType:
+                                            TextInputType.datetime,
                                             inputFormatters: [
                                               FilteringTextInputFormatter
                                                   .digitsOnly,
@@ -264,33 +222,29 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                           ),
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.calendar_month),
+                                          icon: Icon(Icons.calendar_month),
                                           onPressed: () {
                                             showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title: const Text('Select date'),
+                                                  title: Text('Select date'),
                                                   content: StatefulBuilder(
-                                                    builder: (
-                                                        BuildContext context,
+                                                    builder: (BuildContext
+                                                    context,
                                                         StateSetter setState) {
                                                       return CalendarPopup(
-                                                          setState: setState,
-                                                          onDaySelected: (day) {
-                                                            selectedDate = day; // Capture the selected date
-                                                            _dateController.text = formatDate(day);
-                                                          }
-                                                      );
+                                                          setState: setState);
                                                     },
                                                   ),
                                                   actions: <Widget>[
-                                                    TextButton(
+                                                    new TextButton(
                                                       onPressed: () {
-                                                        print('Selected Date from tablecalendar: $selectedDate');
-                                                        Navigator.of(context).pop();
+                                                        Navigator.of(context)
+                                                            .pop();
                                                       },
-                                                      child: const Text('Select'),
+                                                      child:
+                                                      const Text('Select'),
                                                     ),
                                                   ],
                                                 );
@@ -300,61 +254,67 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 5),
+                                    SizedBox(height: 5),
                                     Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .start,
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.start,
                                         children: [
-                                          const Text('Time:'),
-                                          const SizedBox(width: 5),
-                                          Flexible(child: TextField(
-                                            controller: _timeController,
-                                            decoration: const InputDecoration(
-                                              labelText: 'Enter time (HH:MM)',
+                                          Text('Time:'),
+                                          SizedBox(width: 5),
+                                          Flexible(
+                                            child: TextField(
+                                              controller: _timeController,
+                                              decoration: InputDecoration(
+                                                labelText: 'Enter time (HH:MM)',
+                                              ),
+                                              keyboardType:
+                                              TextInputType.datetime,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                    4),
+                                                _timeInputFormatter,
+                                              ],
                                             ),
-                                            keyboardType: TextInputType
-                                                .datetime,
-                                            inputFormatters: [
-                                              FilteringTextInputFormatter
-                                                  .digitsOnly,
-                                              LengthLimitingTextInputFormatter(
-                                                  4),
-                                              _timeInputFormatter,
-                                            ],
-                                          ),),
+                                          ),
                                           IconButton(
                                             icon: Icon(Icons.access_time),
                                             onPressed: () {
                                               showDialog(
                                                 context: context,
-                                                builder: (
-                                                    BuildContext context) {
+                                                builder:
+                                                    (BuildContext context) {
                                                   return AlertDialog(
-                                                    title: const Text('Select time'),
+                                                    title: Text('Select time'),
                                                     content: StatefulBuilder(
-                                                      builder: (
-                                                          BuildContext context,
-                                                          StateSetter setState) {
+                                                      builder:
+                                                          (BuildContext context,
+                                                          StateSetter
+                                                          setState) {
                                                         return TimePickerPopup(
-                                                            setState: setState,
-                                                            onTimeSelected: (time) {
-                                                              selectedTime = time;
-                                                              print('Selected Time hehe: $selectedTime'); // Handle the selected time
-                                                              _timeController.text = formatTimeOfDay(time);
-                                                            }
-                                                        );
+                                                            setState: setState);
                                                       },
                                                     ),
+                                                    actions: <Widget>[
+                                                      new TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: const Text(
+                                                            'Select'),
+                                                      ),
+                                                    ],
                                                   );
                                                 },
                                               );
                                             },
                                           ),
-                                        ]
-                                    ),
+                                        ]),
                                     Row(
                                       children: [
-                                        const Text('Free deadline'),
+                                        Text('Free deadline'),
                                         Checkbox(
                                           value: isCheckboxChecked,
                                           onChanged: (value) {
@@ -366,31 +326,20 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                        children: [
-                                          Flexible(child: TextField(
-                                            enabled: isCheckboxChecked,
-                                            controller: _freeMonthController,
-                                            decoration: const InputDecoration(
-                                              labelText: '(MM)',
-                                            ),
-                                            keyboardType: TextInputType.number,
-                                            inputFormatters: [TwoDigitInputFormatter()],
-                                          ),),
-                                          const Text("Month"),
-                                          Flexible( child: TextField(
-                                            enabled: isCheckboxChecked,
-                                            controller: _freeDayController,
-                                            decoration: const InputDecoration(
-                                              labelText: '(dd)',
-                                            ),
-                                            keyboardType: TextInputType.number,
-                                            inputFormatters: [TwoDigitInputFormatter()],
-                                          ),),
-                                          const Text("Day"),
-                                        ]
-                                    )
-
+                                    Row(children: [
+                                      Flexible(
+                                        child: TextField(
+                                          enabled: isCheckboxChecked,
+                                        ),
+                                      ),
+                                      Text("Month"),
+                                      Flexible(
+                                        child: TextField(
+                                          enabled: isCheckboxChecked,
+                                        ),
+                                      ),
+                                      Text("Day"),
+                                    ])
                                   ],
                                 );
                               },
@@ -398,14 +347,14 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                           ),
                           actions: <Widget>[
                             TextButton(
-                              child: const Text('Cancel',
+                              child: Text('Cancel',
                                   style: TextStyle(color: Colors.blue)),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
                             ),
                             TextButton(
-                              child: const Text('Create',
+                              child: Text('Create',
                                   style: TextStyle(color: Colors.blue)),
                               onPressed: () {
                                 String taskName = singleTaskController.text;
@@ -424,7 +373,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                       },
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'New Task',
                     style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
@@ -434,23 +383,21 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainViewPage(project: projects[1]))
-              );
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MainViewPage()));
               print('calendar opened!');
             },
             child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                  padding: const EdgeInsets.all(8),
-                  color: Colors.lightBlue, // Set the color of the larger container
-                  child: const DateList(),
-                )
-            ),
+                  padding: EdgeInsets.all(8),
+                  color:
+                  Colors.lightBlue, // Set the color of the larger container
+                  child: DateList(),
+                )),
           ),
           AppBar(
-            title: const Text('Projects', style: TextStyle(color: Colors.black)),
+            title: Text('Projects', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
             elevation: 0,
           ),
@@ -461,7 +408,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                 final project = projects[index];
                 final allTasksComplete = project.tasks.isNotEmpty &&
                     project.tasks.every((task) =>
-                        task.errands.isNotEmpty &&
+                    task.errands.isNotEmpty &&
                         task.errands.every((errand) => errand.isComplete));
 
                 return ListTile(
@@ -472,18 +419,14 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     ),
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.visibility),
+                    icon: Icon(Icons.visibility),
                     tooltip: 'Explore',
                     onPressed: () {
-                      print('visibility pressed for Item 1');
-                      int index = findProjectIndex(project.name);
-                      String projectNameToFind = project.name;
-                      print('Project "$projectNameToFind" found at index: $index');
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MainViewPage(project: projects[index])),
+                        MaterialPageRoute(builder: (context) => MainViewPage()),
                       );
-
+                      print('visibility pressed for Item 1');
                     },
                   ),
                   onTap: () async {
@@ -501,7 +444,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             ),
           ),
           AppBar(
-            title: const Text('Tasks', style: TextStyle(color: Colors.black)),
+            title: Text('Tasks', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
             elevation: 0,
           ),

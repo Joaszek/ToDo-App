@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'calendar_screen.dart';
 
 class DateWindow extends StatelessWidget {
-  const DateWindow({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 120.0,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -27,7 +25,7 @@ class DateWindow extends StatelessWidget {
             },
             child: Container(
               width: 80.0,
-              margin: const EdgeInsets.all(8.0),
+              margin: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 color: Colors.blue,
                 borderRadius: BorderRadius.circular(10.0),
@@ -35,7 +33,7 @@ class DateWindow extends StatelessWidget {
               child: Center(
                 child: Text(
                   formattedDate,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),

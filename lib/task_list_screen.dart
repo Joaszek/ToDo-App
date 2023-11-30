@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'errand_list_screen.dart';
 import 'models.dart';
-import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in deadline functionality
+import 'package:flutter/services.dart';
 
 class TaskListScreen extends StatefulWidget {
   final Project project;
@@ -11,7 +11,7 @@ class TaskListScreen extends StatefulWidget {
   final Function(String, String, Errand) addErrandCallback;
   final VoidCallback updateUICallback;
 
-  const TaskListScreen({super.key,
+  TaskListScreen({
     required this.project,
     required this.addTaskCallback,
     required this.updateUICallback,
@@ -24,33 +24,16 @@ class TaskListScreen extends StatefulWidget {
 
 class _TaskListScreenState extends State<TaskListScreen> {
   final TextEditingController taskNameController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController();
-  TextEditingController _freeMonthController = TextEditingController();
-  TextEditingController _freeDayController = TextEditingController();
+  final TextEditingController projectDescriptionController =
+  TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  TextEditingController _timeController = TextEditingController();
   bool isCheckboxChecked = false;
-  DateTime selectedDate = DateTime.now(); // Variable to store the selected date from tablecalendar
-  TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
 
   late TimeInputFormatter _timeInputFormatter;
+
   _TaskListScreenState() {
-    // Initialize _timeInputFormatter in the constructor
     _timeInputFormatter = TimeInputFormatter();
-  }
-
-  // Function to convert DateTime to String with the format yyyy-MM-dd
-  String formatDate(DateTime dateTime) {
-    String year = dateTime.year.toString();
-    String month = dateTime.month.toString().padLeft(2, '0');
-    String day = dateTime.day.toString().padLeft(2, '0');
-
-    return '$year-$month-$day';
-  }
-  // Function to convert TimeOfDay to String with the format HH:mm
-  String formatTimeOfDay(TimeOfDay timeOfDay) {
-    final String hour = timeOfDay.hour.toString().padLeft(2, '0');
-    final String minute = timeOfDay.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
   }
 
   @override
@@ -58,256 +41,300 @@ class _TaskListScreenState extends State<TaskListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.project.name),
+        centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: widget.project.tasks.length,
-        itemBuilder: (context, index) {
-          final task = widget.project.tasks[index];
-          final allErrandsComplete = task.errands.isNotEmpty &&
-              task.errands.every((errand) => errand.isComplete);
-
-          return ListTile(
-            title: Text(
-              task.name,
-              style: TextStyle(
-                color: allErrandsComplete ? Colors.green : Colors.black,
+      body: Container(
+        color: Theme.of(context).primaryColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: projectDescriptionController,
+                decoration: InputDecoration(
+                  labelText: 'Project Description',
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
               ),
             ),
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ErrandListScreen(
-                    widget.project,
-                    task,
-                    widget.addErrandCallback,
-                    widget.updateUICallback,
+            Divider(color: Colors.black),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Text(
+                    'Task List',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              );
-
-              // When returning from the ErrandListScreen, update the UI to
-              // reflect the new errand completion status.
-              widget.updateUICallback();
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Create a New Task'),
-                content: SingleChildScrollView(
-                  child: StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          TextField(
-                            controller: taskNameController,
-                            decoration:
-                            const InputDecoration(labelText: 'Task Name'),
-                          ),
-                          const SizedBox(height: 100),
-                          const Text('Deadline'),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment
-                                .start,
-                            children: [
-                              const Text('Date:'),
-                              const SizedBox(width: 5),
-                              Flexible(
-                                child: TextField(
-                                  controller: _dateController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'YYYY-MM-DD',
-                                  ),
-                                  keyboardType: TextInputType
-                                      .datetime,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter
-                                        .digitsOnly,
-                                    LengthLimitingTextInputFormatter(
-                                        10),
-                                    // Add custom input formatter for date format
-                                    DateInputFormatter(),
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.calendar_month),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Select date'),
-                                        content: StatefulBuilder(
-                                          builder: (
-                                              BuildContext context,
-                                              StateSetter setState) {
-                                            return CalendarPopup(
-                                                setState: setState,
-                                                onDaySelected: (day) {
-                                                  selectedDate = day; // Capture the selected date
-                                                  _dateController.text = formatDate(day);
-                                                }
-                                            );
-                                          },
-                                        ),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            onPressed: () {
-                                              print('Selected Date from tablecalendar: $selectedDate');
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text(
-                                                'Select'),
+                  Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Create a New Task'),
+                            content: SingleChildScrollView(
+                              child: StatefulBuilder(
+                                builder: (BuildContext context,
+                                    StateSetter setState) {
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      TextField(
+                                        controller: taskNameController,
+                                        decoration: InputDecoration(
+                                            labelText: 'Task Name'),
+                                      ),
+                                      SizedBox(height: 100),
+                                      Text('Deadline'),
+                                      Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.start,
+                                        children: [
+                                          Text('Date:'),
+                                          SizedBox(width: 5),
+                                          Flexible(
+                                            child: TextField(
+                                              controller: _dateController,
+                                              decoration: InputDecoration(
+                                                labelText: 'YYYY-MM-DD',
+                                              ),
+                                              keyboardType:
+                                              TextInputType.datetime,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                    10),
+                                                DateInputFormatter(),
+                                              ],
+                                            ),
                                           ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .start,
-                              children: [
-                                const Text('Time:'),
-                                const SizedBox(width: 5),
-                                Flexible(child: TextField(
-                                  controller: _timeController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Enter time (HH:MM)',
-                                  ),
-                                  keyboardType: TextInputType
-                                      .datetime,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter
-                                        .digitsOnly,
-                                    LengthLimitingTextInputFormatter(
-                                        4),
-                                    _timeInputFormatter,
-                                  ],
-                                ),),
-                                IconButton(
-                                  icon: const Icon(Icons.access_time),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (
-                                          BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Text('Select time'),
-                                          content: StatefulBuilder(
-                                            builder: (
-                                                BuildContext context,
-                                                StateSetter setState) {
-                                              return TimePickerPopup(
-                                                  setState: setState,
-                                                  onTimeSelected: (time) {
-                                                    selectedTime = time;
-                                                    print('Selected Time hehe: $selectedTime'); // Handle the selected time
-                                                    _timeController.text = formatTimeOfDay(time);
-                                                  }
+                                          IconButton(
+                                            icon: Icon(Icons.calendar_month),
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: Text('Select date'),
+                                                    content: StatefulBuilder(
+                                                      builder: (
+                                                          BuildContext context,
+                                                          StateSetter setState,
+                                                          ) {
+                                                        return CalendarPopup(
+                                                            setState: setState);
+                                                      },
+                                                    ),
+                                                    actions: <Widget>[
+                                                      new TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: const Text(
+                                                            'Select'),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
                                               );
                                             },
                                           ),
-                                        );
-                                      },
+                                        ],
+                                      ),
+                                      SizedBox(height: 5),
+                                      Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.start,
+                                        children: [
+                                          Text('Time:'),
+                                          SizedBox(width: 5),
+                                          Flexible(
+                                            child: TextField(
+                                              controller: _timeController,
+                                              decoration: InputDecoration(
+                                                labelText: 'Enter time (HH:MM)',
+                                              ),
+                                              keyboardType:
+                                              TextInputType.datetime,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                    4),
+                                                _timeInputFormatter,
+                                              ],
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.access_time),
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (
+                                                    BuildContext context,
+                                                    ) {
+                                                  return AlertDialog(
+                                                    title: Text('Select time'),
+                                                    content: StatefulBuilder(
+                                                      builder: (
+                                                          BuildContext context,
+                                                          StateSetter setState,
+                                                          ) {
+                                                        return TimePickerPopup(
+                                                            setState: setState);
+                                                      },
+                                                    ),
+                                                    actions: <Widget>[
+                                                      new TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: const Text(
+                                                            'Select'),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text('Free deadline'),
+                                          Checkbox(
+                                            value: isCheckboxChecked,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                isCheckboxChecked =
+                                                    value ?? false;
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: TextField(
+                                              enabled: isCheckboxChecked,
+                                            ),
+                                          ),
+                                          Text("Month"),
+                                          Flexible(
+                                            child: TextField(
+                                              enabled: isCheckboxChecked,
+                                            ),
+                                          ),
+                                          Text("Day"),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: Text('Create'),
+                                onPressed: () {
+                                  String taskName = taskNameController.text;
+                                  if (taskName.isNotEmpty) {
+                                    widget.addTaskCallback(
+                                      widget.project.name,
+                                      Task(taskName, [], null, null),
                                     );
-                                  },
-                                ),
-                              ]
-                          ),
-                          Row(
-                            children: [
-                              const Text('Free deadline'),
-                              Checkbox(
-                                value: isCheckboxChecked,
-                                onChanged: (value) {
-                                  setState(() {
-                                    isCheckboxChecked =
-                                        value ?? false;
-                                  });
+                                    setState(() {
+                                      widget.updateUICallback();
+                                    });
+                                  }
+                                  Navigator.of(context).pop();
                                 },
                               ),
                             ],
-                          ),
-                          Row(
-                              children: [
-                                Flexible(child: TextField(
-                                  enabled: isCheckboxChecked,
-                                  controller: _freeMonthController,
-                                  decoration: const InputDecoration(
-                                    labelText: '(MM)',
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [TwoDigitInputFormatter()],
-                                ),),
-                                const Text("Month"),
-                                Flexible( child: TextField(
-                                  enabled: isCheckboxChecked,
-                                  controller: _freeDayController,
-                                  decoration: const InputDecoration(
-                                    labelText: '(dd)',
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [TwoDigitInputFormatter()],
-                                ),),
-                                const Text("Day"),
-                              ]
-                          )
-
-                        ],
+                          );
+                        },
                       );
                     },
-                  ),
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('Cancel'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  TextButton(
-                    child: const Text('Create'),
-                    onPressed: () {
-                      String taskName = taskNameController.text;
-                      if (taskName.isNotEmpty) {
-                          if(_dateController.text == "") {
-                            widget.addTaskCallback(widget.project.name,
-                                Task(taskName, [], null, null,
-                                    deadline: null));
-                          }
-                          else {
-                            widget.addTaskCallback(widget.project.name,
-                                Task(taskName, [], null, null,
-                                    deadline: Deadline(date: selectedDate,
-                                        time: selectedTime)));
-                          }
-                          setState(() {
-                            widget.updateUICallback();
-                          });
-                      }
-                      // Close the dialog
-                      Navigator.of(context).pop();
-                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(),
+                      padding: EdgeInsets.all(15),
+                    ),
+                    child: Icon(Icons.add, size: 30),
                   ),
                 ],
-              );
-            },
-          );
-        },
-        child: const Icon(Icons.add),
+              ),
+            ),
+            Divider(color: Colors.black),
+            Expanded(
+              child: ListView.builder(
+                itemCount: widget.project.tasks.length,
+                itemBuilder: (context, index) {
+                  final task = widget.project.tasks[index];
+                  final allErrandsComplete = task.errands.isNotEmpty &&
+                      task.errands.every((errand) => errand.isComplete);
+
+                  return Container(
+                    margin: EdgeInsets.all(8),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ErrandListScreen(
+                              project: widget.project,
+                              task: task,
+                              addErrandCallback: widget.addErrandCallback,
+                              updateUICallback: widget.updateUICallback,
+                            ),
+                          ),
+                        );
+
+                        widget.updateUICallback();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary:
+                        allErrandsComplete ? Colors.green : Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(double.infinity, 0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          task.name,
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
