@@ -301,13 +301,13 @@ class _DateListState extends State<DateList> {
     widget.projects.forEach((project) {
       project.tasks.forEach((task) {
         if(task.deadline != null) {
-          print(task.deadline!.date!);
-          print(day);
+          //print(task.deadline!.date!);
+          //print(day);
           if ( isSameDate(task.deadline!.date!, day)/*task.deadline!.date!.isAtSameMomentAs(day)*/ ) {
-            numEvents.add(Event(task.name, priority: Priority.high));
+            numEvents.add(Event(task.name, priority: task.priority));
             //return [Event('Task 1', priority: Priority.high), Event('Task 1', priority: Priority.medium)];
           } else {
-            print("no events for this date");//[Event('Task 1', priority: Priority.low)];
+            //print("no events for this date");//[Event('Task 1', priority: Priority.low)];
           }
         }
 

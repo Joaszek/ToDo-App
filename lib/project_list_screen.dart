@@ -120,6 +120,11 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     setState(() {});
   }
 
+  // Define the updateUI function for TaskListScreen
+  void updateTaskList() {
+    setState(() {});
+  }
+
   // Function to convert DateTime to String with the format yyyy-MM-dd
   String formatDate(DateTime dateTime) {
     String year = dateTime.year.toString();
@@ -142,6 +147,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
         addTaskCallback: addTask,
         updateUICallback: updateUI,
         addErrandCallback: addErrand,
+        updateTaskList: updateTaskList,
       ),
     );
   }
