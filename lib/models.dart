@@ -251,42 +251,75 @@ class TwoDigitInputFormatter extends TextInputFormatter {
 
 
 //************* USED FOR FRONT CALENDAR *************//
-class DateList extends StatelessWidget {
-  const DateList({super.key});
+
+class DateList extends StatefulWidget {
+  final List<Project> projects;
+
+  const DateList({Key? key, required this.projects}) : super(key: key);
+
+  @override
+  _DateListState createState() => _DateListState();
+}
+
+
+class _DateListState extends State<DateList> {
+  late List<DateTime> firstThirtyDates;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the firstThirtyDates in the initState
+    firstThirtyDates = List.generate(30,
+          (index) => DateTime.now().add(Duration(days: index)),
+    );
+  }
+
+  bool isSameDate(DateTime date1, DateTime date2) {
+    if (date1.year == date2.year && date1.month == date2.month && date1.day == date2.day) {
+      // Handle the case where either date is null (you might want to define how to handle this)
+      return true;
+    }
+    else return false;
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Get the first 50 dates starting from today
-    List<DateTime> firstThirtyDates = List.generate(
-      30,
-          (index) => DateTime.now().add(Duration(days: index)),
-    );
-
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: firstThirtyDates
-            .map(
-              (date) => DateItem(date: date, events: getSampleEvents(date.day)),
-        )
-            .toList(),
+        children: firstThirtyDates.map(
+              (date) => DateItem(date: date, events: getSampleEvents(date)),
+        ).toList(),
       ),
     );
   }
 
   // Sample function to generate events for demonstration purposes
-  List<Event> getSampleEvents(int day) {
-    if (day % 2 == 0) {
-      return [Event('Task 1', priority: Priority.high), Event('Task 1', priority: Priority.medium)];
-    } else {
-      return [Event('Task 1', priority: Priority.low)];
-    }
+  List<Event>? getSampleEvents(DateTime day) {
+    // if 0,0 or "", deadline=null else deadline exist with the corresponding date
+    List<Event> numEvents = [];
+    widget.projects.forEach((project) {
+      project.tasks.forEach((task) {
+        if(task.deadline != null) {
+          print(task.deadline!.date!);
+          print(day);
+          if ( isSameDate(task.deadline!.date!, day)/*task.deadline!.date!.isAtSameMomentAs(day)*/ ) {
+            numEvents.add(Event(task.name, priority: Priority.high));
+            //return [Event('Task 1', priority: Priority.high), Event('Task 1', priority: Priority.medium)];
+          } else {
+            print("no events for this date");//[Event('Task 1', priority: Priority.low)];
+          }
+        }
+
+      });
+    });
+    return numEvents;
   }
 }
 
 class DateItem extends StatelessWidget {
   final DateTime date;
-  final List<Event> events;
+  final List<Event>? events;
 
   const DateItem({super.key, required this.date, required this.events});
 
@@ -315,7 +348,7 @@ class DateItem extends StatelessWidget {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: events.map((event) {
+            children: (events ?? []).map((event) {
               return Container(
                 margin: const EdgeInsets.only(right: 4),
                 width: 6, // Adjust the width of the dots
@@ -337,6 +370,85 @@ class DateItem extends StatelessWidget {
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
     return monthNames[month - 1];
+  }
+}
+//***************************************************//
+
+//***************USED FOR PRIORITY SCROLL********************//
+class PriorityScroll extends StatefulWidget {
+  final void Function(Priority) onPrioritySelected;
+
+  PriorityScroll({required this.onPrioritySelected});
+
+  @override
+  _PriorityScrollState createState() => _PriorityScrollState();
+}
+
+class _PriorityScrollState extends State<PriorityScroll> {
+  Priority selectedPriority = Priority.none;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: Priority.values.map((priority) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: selectedPriority == priority,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedPriority = priority;
+                      widget.onPrioritySelected(priority); // Notify the parent widget
+                    });
+                  },
+                  activeColor: getPriorityColor(priority), // Set checkbox color
+                ),
+                Text(
+                  priorityToString(priority),
+                  style: TextStyle(
+                    color: getPriorityColor(priority), // Set text color
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Color getPriorityColor(Priority priority) {
+    switch (priority) {
+      case Priority.high:
+        return Colors.red;
+      case Priority.medium:
+        return Colors.orange;
+      case Priority.low:
+        return Colors.green;
+      case Priority.none:
+        return Colors.blue;
+      default:
+        return Colors.black;
+    }
+  }
+
+  String priorityToString(Priority priority) {
+    switch (priority) {
+      case Priority.high:
+        return 'High';
+      case Priority.medium:
+        return 'Medium';
+      case Priority.low:
+        return 'Low';
+      case Priority.none:
+        return 'None';
+      default:
+        return '';
+    }
   }
 }
 //***************************************************//

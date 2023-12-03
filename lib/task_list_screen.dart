@@ -31,6 +31,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
   bool isCheckboxChecked = false;
   DateTime selectedDate = DateTime.now(); // Variable to store the selected date from tablecalendar
   TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
+  Priority selectedPriority = Priority.none;
 
 
   late TimeInputFormatter _timeInputFormatter;
@@ -268,7 +269,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                 ),),
                                 const Text("Day"),
                               ]
-                          )
+                          ),
+                          const SizedBox(height: 50),
+                          const Text('Priority'),
+                          PriorityScroll(
+                            onPrioritySelected: (priority) {
+                              // Use the selectedPriority as needed
+                              print('Selected Priority: $priority');
+                              selectedPriority = priority;
+                            },
+                          ),
 
                         ],
                       );
@@ -287,26 +297,38 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     onPressed: () {
                       String taskName = taskNameController.text;
                       if (taskName.isNotEmpty) {
+                        print("Task name is $taskName");
                         if(isCheckboxChecked) {
-                          int nMonth = int.parse(_freeMonthController.text);
-                          int nDay = int.parse(_freeDayController.text);
-                          print("month is $nMonth");
-                          print("Day is $nDay");
+                          if (_freeDayController.text == "0" && _freeMonthController.text == "0") {
+                            widget.addTaskCallback(widget.project.name,
+                                Task(taskName, [], null, null, deadline: null, priority: Priority.none));
+                          }
+                          else {
+                            int nMonth = int.parse(_freeMonthController.text);
+                            int nDay = int.parse(_freeDayController.text);
+                            print("month is $nMonth, day is $nDay");
+                            final now = DateTime.now();
+                            final timeNow = TimeOfDay.now();
+                            final freeDeadlineDate = now.add(Duration(days: nMonth * 30 + nDay));
+                            widget.addTaskCallback(widget.project.name,
+                                Task(taskName, [], null, null,
+                                    deadline: Deadline(date: freeDeadlineDate, time: timeNow),
+                                    priority: selectedPriority));
+                          }
                         }
                         else {
                           if (_dateController.text == "") {
                             widget.addTaskCallback(widget.project.name,
-                                Task(taskName, [], null, null,
-                                    deadline: null));
+                                Task(taskName, [], null, null, deadline: null, priority: Priority.none));
                           }
                           else {
                             widget.addTaskCallback(widget.project.name,
                                 Task(taskName, [], null, null,
-                                    deadline: Deadline(date: selectedDate,
-                                        time: selectedTime)));
+                                    deadline: Deadline(date: selectedDate, time: selectedTime),
+                                    priority: selectedPriority));
                           }
                         }
-
+                        // Update the UI callback directly here
                         setState(() {
                           widget.updateUICallback();
                         });

@@ -5,6 +5,7 @@ import 'task_list_screen.dart';
 import 'models.dart';
 import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in deadline functionality
 import 'main_view.dart';
+import 'calendar_view_multi.dart';
 
 class ProjectListScreen extends StatefulWidget {
   const ProjectListScreen({super.key});
@@ -18,11 +19,12 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   final TextEditingController singleTaskController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
-  TextEditingController _freeMonthController = TextEditingController();
-  TextEditingController _freeDayController = TextEditingController();
+  TextEditingController _freeMonthController = TextEditingController(text:"0");
+  TextEditingController _freeDayController = TextEditingController(text:"0");
   bool isCheckboxChecked = false;
   DateTime selectedDate = DateTime.now(); // Variable to store the selected date from tablecalendar CalendarPopUp
   TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
+  Priority selectedPriority = Priority.none;
 
   late TimeInputFormatter _timeInputFormatter;
   _ProjectListScreenState() {
@@ -389,7 +391,16 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                           ),),
                                           const Text("Day"),
                                         ]
-                                    )
+                                    ),
+                                    const SizedBox(height: 50),
+                                    const Text('Priority'),
+                                    PriorityScroll(
+                                      onPrioritySelected: (priority) {
+                                        // Use the selectedPriority as needed
+                                        print('Selected Priority: $priority');
+                                        selectedPriority = priority;
+                                      },
+                                    ),
 
                                   ],
                                 );
@@ -405,15 +416,41 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                               },
                             ),
                             TextButton(
-                              child: const Text('Create',
-                                  style: TextStyle(color: Colors.blue)),
+                              child: const Text('Create', style: TextStyle(color: Colors.blue)),
                               onPressed: () {
                                 String taskName = singleTaskController.text;
                                 if (taskName.isNotEmpty) {
+                                  print("Task name is $taskName");
+                                  if(isCheckboxChecked) {
+                                    if (_freeDayController.text == "0" && _freeMonthController.text == "0") {
+                                      singleTasks.add(Task(taskName, [], null, null, deadline: null, priority: Priority.none));
+                                    }
+                                    else {
+                                      int nMonth = int.parse(_freeMonthController.text);
+                                      int nDay = int.parse(_freeDayController.text);
+                                      print("month is $nMonth, day is $nDay");
+                                      final now = DateTime.now();
+                                      final timeNow = TimeOfDay.now();
+                                      final freeDeadlineDate = now.add(Duration(days: nMonth * 30 + nDay));
+                                      singleTasks.add(Task(taskName, [], null, null, deadline:
+                                        Deadline(date: freeDeadlineDate, time: timeNow),
+                                        priority: selectedPriority));
+                                    }
+                                  }
+                                  else {
+                                    if (_dateController.text == "") {
+                                      singleTasks.add(Task(taskName, [], null, null, deadline: null, priority: Priority.none));
+                                    }
+                                    else {
+                                      singleTasks.add(Task(taskName, [], null, null, deadline:
+                                        Deadline(date: selectedDate,time: selectedTime),
+                                        priority: selectedPriority));
+                                    }
+                                  }
+
                                   // Update the UI callback directly here
                                   setState(() {
-                                    singleTasks
-                                        .add(Task(taskName, [], null, null));
+                                    print("Single Tasks has been created");
                                   });
                                 }
                                 Navigator.of(context).pop();
@@ -436,7 +473,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             onTap: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MainViewPage(project: projects[1]))
+                  MaterialPageRoute(builder: (context) => CalendarViewMultiPage(projects: projects))
               );
               print('calendar opened!');
             },
@@ -445,7 +482,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   color: Colors.lightBlue, // Set the color of the larger container
-                  child: const DateList(),
+                  child: DateList(projects: projects),
                 )
             ),
           ),
@@ -516,6 +553,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     task.name,
                   ),
                   onTap: () {
+
                     // Handle tap on single tasks here
                   },
                 );
