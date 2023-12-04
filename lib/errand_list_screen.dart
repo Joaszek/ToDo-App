@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'models.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+
 
 
 class ErrandListScreen extends StatefulWidget {
@@ -29,6 +31,9 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
 
   late SpeechRecognitionService _speechRecognitionService;
   String recognizedText = ''; // State variable to hold the recognized text
+
+  String selectedFileName = '';
+  String selectedFilePath = '';
 
   _ErrandListScreenState() {
     // Initialize _timeInputFormatter in the constructor
@@ -67,8 +72,7 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
                 _speechRecognitionService.startListening();
               } else {
                 _speechRecognitionService.stopListening();
-              }
-              setState(() {
+
                 recognizedText = _speechRecognitionService.recognizedText;
                 print("in errand_list_screen: $recognizedText");
 
@@ -84,10 +88,16 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
                       widget.task.name,
                       Errand(textAfterName, false),
                     );
+
+                    // Reset recognizedText to avoid creating another project instantly
+                    recognizedText = '';
                   }
                 }
 
-              });
+
+                _speechRecognitionService.reset(); // Reset the service after stopping listening
+              }
+              setState(() {});
 
             },
           ),
@@ -389,81 +399,20 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
             ),
 
             // Add the option to upload a file for the task
-            ListTile(
-              title: const Text("Add Link"),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Add Link'),
-                      content: TextField(
-                        controller: linkController,
-                        decoration: const InputDecoration(labelText: 'Link URL'),
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('Cancel'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('Add'),
-                          onPressed: () {
-                            String linkUrl = linkController.text;
-                            if (linkUrl.isNotEmpty) {
-                              setState(() {
-                                widget.task.link = linkUrl;
-                              });
-                            }
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
+            FileSelectionWidget(
+              task: widget.task,
+              onFilePicked: (File? file) {
+                widget.task.file = file;
               },
             ),
             // Add the option to add a link for the task
-            ListTile(
-              title: const Text("Add Link"),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Add Link'),
-                      content: TextField(
-                        controller: linkController,
-                        decoration: const InputDecoration(labelText: 'Link URL'),
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('Cancel'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('Add'),
-                          onPressed: () {
-                            String linkUrl = linkController.text;
-                            if (linkUrl.isNotEmpty) {
-                              setState(() {
-                                widget.task.link = linkUrl;
-                              });
-                            }
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
+            LinkInsertionWidget(
+              task: widget.task, // Replace 'yourTaskObject' with your actual Task object
+              onLinkInserted: (String link) {
+                // Handle the inserted link as needed
+                print('Link inserted: $link');
               },
-            ),
+            )
           ],
         ),
       )

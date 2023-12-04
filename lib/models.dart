@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart'; // used for calendar widget
 import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in calendar and clock widget
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 
 class Deadline {
@@ -22,7 +24,7 @@ class Errand {
 class Task {
   final String name;
   final List<Errand> errands;
-  String? file; // File associated with the task (can be a single file)
+  File? file; // File associated with the task (can be a single file)
   String? link; // Link associated with the task (can be a single link)
   Deadline? deadline; // use ? so that it can be a null value
   final Priority priority;
@@ -454,7 +456,7 @@ class _PriorityScrollState extends State<PriorityScroll> {
 }
 //***************************************************//
 
-
+//*******************USED FOR SPEECH TO TEXT**********************//
 class SpeechRecognitionService {
   late stt.SpeechToText _speech;
   bool _isListening = false;
@@ -496,6 +498,11 @@ class SpeechRecognitionService {
     }
   }
 
+  void reset() {
+    _text = '';
+    _isListening = false;
+  }
+
   bool get isListening => _isListening;
   String get recognizedText => _text;
 }
@@ -518,3 +525,157 @@ String extractTextAfterKeyword(String keyword, String text) {
   }
   return '';
 }
+//***************************************************//
+
+
+//*******************USED FOR FILE PICKER WIDGET********************//
+class FilePickerService {
+  Future<Map<String, String>?> pickFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        // Return a map containing both the file name and path
+        return {
+          'name': result.files.single.name,
+          'path': result.files.single.path!,
+        };
+      }
+    } catch (e) {
+      print('File picking error: $e');
+    }
+
+    // Return null if no file is selected or an error occurs
+    return null;
+  }
+}
+
+
+class FileSelectionWidget extends StatefulWidget {
+  final Task task;
+  final void Function(File? file) onFilePicked;
+
+  FileSelectionWidget({required this.task, required this.onFilePicked});
+
+  @override
+  _FileSelectionWidgetState createState() => _FileSelectionWidgetState();
+}
+
+class _FileSelectionWidgetState extends State<FileSelectionWidget> {
+  FilePickerService _filePickerService = FilePickerService();
+  String selectedFileName = '';
+
+  Future<void> _pickFile() async {
+    Map<String, String>? fileData = await _filePickerService.pickFile();
+
+    if (fileData != null) {
+      setState(() {
+        selectedFileName = fileData['name'] ?? '';
+      });
+
+      // Update the task's file using the callback function
+      widget.onFilePicked(File(fileData['path'] ?? ''));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String displayFileName = widget.task.file != null ? getFileDisplayName(widget.task.file!) : '';
+
+    return Container(
+      child: Row(
+        children: [
+          Text('    Add File', style: TextStyle(fontSize: 17)),
+          SizedBox(width: 10),
+          IconButton(
+            icon: Icon(Icons.file_copy_outlined),
+            onPressed: _pickFile,
+          ),
+          SizedBox(width: 10),
+          Text(displayFileName),
+        ],
+      ),
+    );
+  }
+
+  String getFileDisplayName(File file) {
+    return file.uri.pathSegments.last; // Get the last segment of the path, which is the file name
+  }
+}
+
+
+
+//***************************************************//
+
+//**************USED FOR LINK INSERT WIDGET*******************//
+class LinkInsertionWidget extends StatefulWidget {
+  final Task task;
+  final void Function(String link) onLinkInserted;
+
+  LinkInsertionWidget({required this.task, required this.onLinkInserted});
+
+  @override
+  _LinkInsertionWidgetState createState() => _LinkInsertionWidgetState();
+}
+
+class _LinkInsertionWidgetState extends State<LinkInsertionWidget> {
+  TextEditingController linkController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Row(
+        children: [
+          Text('    Insert Link', style: TextStyle(fontSize: 17)),
+          SizedBox(width: 10),
+          IconButton(
+            icon: Icon(Icons.link),
+            onPressed: _insertLink,
+          ),
+          SizedBox(width: 10),
+          Text(widget.task.link ?? ''),
+        ],
+      ),
+    );
+  }
+
+  void _insertLink() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Insert Link'),
+          content: TextField(
+            controller: linkController,
+            decoration: const InputDecoration(labelText: 'Link URL'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Insert'),
+              onPressed: () {
+                String linkUrl = linkController.text;
+                if (linkUrl.isNotEmpty) {
+                  setState(() {
+                    widget.task.link = linkUrl;
+                  });
+                  widget.onLinkInserted(linkUrl);
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+//***************************************************//

@@ -179,15 +179,15 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           IconButton(
             icon: const Icon(Icons.mic),
             tooltip: 'Explore',
-            onPressed: () {
+            onPressed: () async {
               // Implement the desired action when the Explore button is pressed
               print('Speech-to-text button pressed');
+
               if (!_speechRecognitionService.isListening) {
                 _speechRecognitionService.startListening();
               } else {
-                _speechRecognitionService.stopListening();
-              }
-              setState(() {
+                _speechRecognitionService.stopListening(); // Make sure to await the stopListening to ensure it completes before moving on
+
                 recognizedText = _speechRecognitionService.recognizedText;
                 print("in project_list_screen: $recognizedText");
 
@@ -199,11 +199,16 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     // Perform actions with the extracted text
                     print('Text after "name": $textAfterName');
                     addProject(textAfterName);
+
+                    // Reset recognizedText to avoid creating another project instantly
+                    recognizedText = '';
                   }
                 }
 
-              });
+                _speechRecognitionService.reset(); // Reset the service after stopping listening
+              }
 
+              setState(() {});
             },
           ),
         ],
