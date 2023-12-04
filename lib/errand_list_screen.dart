@@ -27,6 +27,27 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
   final TextEditingController fileController = TextEditingController();
   final TextEditingController linkController = TextEditingController();
 
+  late SpeechRecognitionService _speechRecognitionService;
+  String recognizedText = ''; // State variable to hold the recognized text
+
+  _ErrandListScreenState() {
+    // Initialize _timeInputFormatter in the constructor
+    _speechRecognitionService = SpeechRecognitionService(
+      onRecognitionComplete: () {},
+    );
+    initSpeechRecognizer();
+  }
+
+  Future<void> initSpeechRecognizer() async {
+    bool available = await _speechRecognitionService.initSpeechRecognizer();
+
+    if (available) {
+      print('****************************Speech recognizer initialized successfully.');
+    } else {
+      print('----------------------------Speech recognizer initialization failed.');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +57,40 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
         centerTitle: true,
         backgroundColor: Colors.blue.shade500,
         actions: [
-          if (widget.task.deadline != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Deadline: ${DateFormat('yyyy-MM-dd').format(widget.task.deadline!.date ?? DateTime.now())}',
-                style: TextStyle(fontSize: 16),
-              ),
-            )
-          else
-            SizedBox(width: 8.0), // Empty space if no deadline
+          IconButton(
+            icon: const Icon(Icons.mic),
+            tooltip: 'Explore',
+            onPressed: () {
+              // Implement the desired action when the Explore button is pressed
+              print('Speech-to-text button pressed');
+              if (!_speechRecognitionService.isListening) {
+                _speechRecognitionService.startListening();
+              } else {
+                _speechRecognitionService.stopListening();
+              }
+              setState(() {
+                recognizedText = _speechRecognitionService.recognizedText;
+                print("in errand_list_screen: $recognizedText");
+
+                // Check for specific words
+                // Check for specific words and extract text after "name"
+                if (containsWords(['create', 'errand', 'name'], recognizedText)) {
+                  String textAfterName = extractTextAfterKeyword('name', recognizedText);
+                  if (textAfterName.isNotEmpty) {
+                    // Perform actions with the extracted text
+                    print('Text after "name": $textAfterName');
+                    widget.addErrandCallback(
+                      widget.project.name,
+                      widget.task.name,
+                      Errand(textAfterName, false),
+                    );
+                  }
+                }
+
+              });
+
+            },
+          ),
         ],
       ),
       body: Container(
@@ -64,7 +109,24 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const Text('  Deadline: ', style: TextStyle(fontSize: 16),),
+                const SizedBox(width: 5),
+                if (widget.task.deadline != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      ' ${DateFormat('yyyy-MM-dd').format(widget.task.deadline!.date ?? DateTime.now())}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  )
+                else
+                  const Text(' None ', style: TextStyle(fontSize: 16),),
+              ]
+            ),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20.0), // Adjust the radius as needed

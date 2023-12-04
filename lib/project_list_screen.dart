@@ -26,11 +26,29 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
   Priority selectedPriority = Priority.none;
 
+  late SpeechRecognitionService _speechRecognitionService;
+  String recognizedText = ''; // State variable to hold the recognized text
+
   late TimeInputFormatter _timeInputFormatter;
   _ProjectListScreenState() {
     // Initialize _timeInputFormatter in the constructor
     _timeInputFormatter = TimeInputFormatter();
+    _speechRecognitionService = SpeechRecognitionService(
+      onRecognitionComplete: () {},
+    );
+    initSpeechRecognizer();
   }
+
+  Future<void> initSpeechRecognizer() async {
+    bool available = await _speechRecognitionService.initSpeechRecognizer();
+
+    if (available) {
+      print('****************************Speech recognizer initialized successfully.');
+    } else {
+      print('----------------------------Speech recognizer initialization failed.');
+    }
+  }
+
 
 
   final List<Project> projects = [
@@ -159,11 +177,33 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
         title: const Text('To-Do app'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.mic),
             tooltip: 'Explore',
             onPressed: () {
               // Implement the desired action when the Explore button is pressed
-              print('Explore button pressed');
+              print('Speech-to-text button pressed');
+              if (!_speechRecognitionService.isListening) {
+                _speechRecognitionService.startListening();
+              } else {
+                _speechRecognitionService.stopListening();
+              }
+              setState(() {
+                recognizedText = _speechRecognitionService.recognizedText;
+                print("in project_list_screen: $recognizedText");
+
+                // Check for specific words
+                // Check for specific words and extract text after "name"
+                if (containsWords(['create', 'project', 'name'], recognizedText)) {
+                  String textAfterName = extractTextAfterKeyword('name', recognizedText);
+                  if (textAfterName.isNotEmpty) {
+                    // Perform actions with the extracted text
+                    print('Text after "name": $textAfterName');
+                    addProject(textAfterName);
+                  }
+                }
+
+              });
+
             },
           ),
         ],
