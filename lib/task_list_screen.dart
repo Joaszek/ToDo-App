@@ -93,8 +93,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 _speechRecognitionService.startListening();
               } else {
                 _speechRecognitionService.stopListening();
-              }
-              setState(() {
+
                 recognizedText = _speechRecognitionService.recognizedText;
                 print("in task_list_screen: $recognizedText");
 
@@ -107,10 +106,15 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     print('Text after "name": $textAfterName');
                     widget.addTaskCallback(widget.project.name,
                         Task(textAfterName, [], null, null, deadline: null, priority: Priority.none));
+
+                    // Reset recognizedText to avoid creating another project instantly
+                    recognizedText = '';
                   }
                 }
 
-              });
+                _speechRecognitionService.reset(); // Reset the service after stopping listening
+              }
+              setState(() {});
 
             },
           ),
