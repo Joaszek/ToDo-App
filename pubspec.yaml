@@ -38,6 +38,16 @@ dependencies:
   table_calendar: ^3.0.9
   syncfusion_flutter_calendar: ^23.1.44
   intl: ^0.18.0
+  # used for speech_to_text recognition
+  # If you cannot run the speech_to_text functionality, run the following in the terminal:
+  # flutter pub upgrade --major-versions
+  # flutter clean
+  # flutter run
+  # If you succeeded, there should be ********Speech recognizer initialized successfully printed on the terminal.
+  speech_to_text: ^6.4.1
+  highlight_text: ^1.7.0
+  avatar_glow: ^2.0.2
+  permission_handler: ^11.1.0
 
 dev_dependencies:
   flutter_test:
@@ -48,7 +58,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

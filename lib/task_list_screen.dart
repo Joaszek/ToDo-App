@@ -36,11 +36,28 @@ class _TaskListScreenState extends State<TaskListScreen> {
   TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
   Priority selectedPriority = Priority.none;
 
+  late SpeechRecognitionService _speechRecognitionService;
+  String recognizedText = ''; // State variable to hold the recognized text
+
 
   late TimeInputFormatter _timeInputFormatter;
   _TaskListScreenState() {
     // Initialize _timeInputFormatter in the constructor
     _timeInputFormatter = TimeInputFormatter();
+    _speechRecognitionService = SpeechRecognitionService(
+      onRecognitionComplete: () {},
+    );
+    initSpeechRecognizer();
+  }
+
+  Future<void> initSpeechRecognizer() async {
+    bool available = await _speechRecognitionService.initSpeechRecognizer();
+
+    if (available) {
+      print('****************************Speech recognizer initialized successfully.');
+    } else {
+      print('----------------------------Speech recognizer initialization failed.');
+    }
   }
 
   // Function to convert DateTime to String with the format yyyy-MM-dd
@@ -65,6 +82,39 @@ class _TaskListScreenState extends State<TaskListScreen> {
         title: Text(widget.project.name),
         centerTitle: true,
         backgroundColor: Colors.lightBlue,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.mic),
+            tooltip: 'Explore',
+            onPressed: () {
+              // Implement the desired action when the Explore button is pressed
+              print('Speech-to-text button pressed');
+              if (!_speechRecognitionService.isListening) {
+                _speechRecognitionService.startListening();
+              } else {
+                _speechRecognitionService.stopListening();
+              }
+              setState(() {
+                recognizedText = _speechRecognitionService.recognizedText;
+                print("in task_list_screen: $recognizedText");
+
+                // Check for specific words
+                // Check for specific words and extract text after "name"
+                if (containsWords(['create', 'task', 'name'], recognizedText)) {
+                  String textAfterName = extractTextAfterKeyword('name', recognizedText);
+                  if (textAfterName.isNotEmpty) {
+                    // Perform actions with the extracted text
+                    print('Text after "name": $textAfterName');
+                    widget.addTaskCallback(widget.project.name,
+                        Task(textAfterName, [], null, null, deadline: null, priority: Priority.none));
+                  }
+                }
+
+              });
+
+            },
+          ),
+        ],
       ),
       body: Container(
         color: Colors.lightBlue,
@@ -126,8 +176,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                               const SizedBox(height: 100),
                                               const Text('Deadline'),
                                               Row(
-                                                mainAxisAlignment: MainAxisAlignment
-                                                    .start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
                                                   const Text('Date:'),
                                                   const SizedBox(width: 5),

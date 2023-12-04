@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart'; // used for calendar widget
 import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in calendar and clock widget
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 
 class Deadline {
@@ -452,3 +453,68 @@ class _PriorityScrollState extends State<PriorityScroll> {
   }
 }
 //***************************************************//
+
+
+class SpeechRecognitionService {
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  String _text = '';
+  VoidCallback onRecognitionComplete; // Callback function to be set in the home page
+
+  SpeechRecognitionService({required this.onRecognitionComplete}) {
+    _speech = stt.SpeechToText();
+  }
+
+  Future<bool> initSpeechRecognizer() async {
+    bool available = await _speech.initialize(
+      onStatus: (status) => print('onStatus: $status'),
+      onError: (error) => print('onError: $error'),
+    );
+
+    return available;
+  }
+
+  void startListening() {
+    if (!_isListening) {
+      _speech.listen(
+        onResult: (result) {
+          if (result.finalResult) {
+            _text = result.recognizedWords;
+            print('Recognized: $_text');
+            onRecognitionComplete(); // Invoke the callback function
+          }
+        },
+      );
+      _isListening = true;
+    }
+  }
+
+  void stopListening() {
+    if (_isListening) {
+      _speech.stop();
+      _isListening = false;
+    }
+  }
+
+  bool get isListening => _isListening;
+  String get recognizedText => _text;
+}
+
+// Function to check if a text contains specific words
+bool containsWords(List<String> words, String text) {
+  for (String word in words) {
+    if (text.toLowerCase().contains(word)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Function to extract text after a keyword
+String extractTextAfterKeyword(String keyword, String text) {
+  int keywordIndex = text.toLowerCase().indexOf(keyword.toLowerCase());
+  if (keywordIndex != -1) {
+    return text.substring(keywordIndex + keyword.length).trim();
+  }
+  return '';
+}
