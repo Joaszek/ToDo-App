@@ -43,7 +43,7 @@ dependencies:
   # If you cannot run the speech_to_text functionality, run the following in the terminal:
   # flutter pub upgrade --major-versions
   # flutter clean
-  # flutter run
+  # flutter run (twice)
   # If you succeeded, there should be ********Speech recognizer initialized successfully printed on the terminal.
   speech_to_text: ^6.4.1
   highlight_text: ^1.7.0
