@@ -75,6 +75,48 @@ class _TaskListScreenState extends State<TaskListScreen> {
     return '$hour:$minute';
   }
 
+
+
+
+
+  double calculateProjectProgress() {
+    int totalPoints = 0;
+    int completedPoints = 0;
+
+    // Calculate total available points and completed points
+    for (Task task in widget.project.tasks) {
+      for (Errand errand in task.errands) {
+        totalPoints += getPointsForPriority(task.priority);
+        if (errand.isComplete) {
+          completedPoints += getPointsForPriority(task.priority);
+        }
+      }
+    }
+
+    // Calculate progress percentage
+    double progressPercentage = totalPoints != 0 ? (completedPoints / totalPoints) * 100 : 0.0;
+
+    return progressPercentage;
+  }
+
+  int getPointsForPriority(Priority priority) {
+    switch (priority) {
+      case Priority.none:
+        return 0;
+      case Priority.low:
+        return 1;
+      case Priority.medium:
+        return 2;
+      case Priority.high:
+        return 3;
+    }
+  }
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,6 +178,22 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   ),
                 ),
               ),
+
+
+              const SizedBox(height: 20),
+              Container(
+                alignment: Alignment.center,
+                child: Text(
+                  'Project Progress: ${calculateProjectProgress().toStringAsFixed(2)}%',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: _getProgressColor(calculateProjectProgress()),
+                  ),
+                ),
+              ),
+
+
               const SizedBox(height: 75),
               Container(
                 decoration: BoxDecoration(
@@ -548,5 +606,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
         ),
       ),
     );
+  }
+  Color _getProgressColor(double progress) {
+    if (progress < 40) {
+      return Colors.red;
+    } else if (progress < 80) {
+      return Colors.yellow;
+    } else if (progress == 100) {
+      return Colors.purple;
+    } else {
+      return Colors.green;
+    }
   }
 }
