@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'models.dart';
 
 class DueDatePriorityViewPage extends StatelessWidget {
-  final Project project;
+  final Project project; // create a project
 
   const DueDatePriorityViewPage({Key? key, required this.project}) : super(key: key);
 
