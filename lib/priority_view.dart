@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app/models.dart';
 
 
 class PriorityViewPage extends StatelessWidget {
-  const PriorityViewPage({super.key});
+  const PriorityViewPage({super.key, required Project project});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class PriorityViewPage extends StatelessWidget {
         children: [
           Expanded(
             child: prioritySection(
-                'High Priority', 5), // Liczba przycisków dla tej sekcji
+                'High Priority', 5),
           ),
           Expanded(
             child: prioritySection(
@@ -54,4 +55,9 @@ class PriorityViewPage extends StatelessWidget {
       ],
     );
   }
+
+  //List<Task> createList(Project project, Priority priority) {
+  //  List<Task> finalTasks = project.tasks.forEach((element) {element.priority == priority});
+  //  return final
+  //}
 }

@@ -29,7 +29,7 @@ class _MainViewState extends State<MainViewPage> {
         },
         children: [
           CalendarViewPage(project: widget.project), // widget. is to get the member from MainViewPage class
-          PriorityViewPage(),
+          PriorityViewPage(project: widget.project),
           DueDatePriorityViewPage()
         ],
       ),
