@@ -29,8 +29,9 @@ class Task {
   Deadline? deadline; // use ? so that it can be a null value
   final Priority priority;
   final Color color;
+  String? description;
 
-  Task(this.name, this.errands, this.file, this.link, {this.deadline, Priority priority = Priority.low})
+  Task(this.name, this.errands, this.file, this.link, {this.deadline, Priority priority = Priority.low, this.description})
       : priority = priority,
         color = _getColorForPriority(priority);
 

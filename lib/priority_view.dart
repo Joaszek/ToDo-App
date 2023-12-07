@@ -3,7 +3,9 @@ import 'package:todo_app/models.dart';
 
 
 class PriorityViewPage extends StatelessWidget {
-  const PriorityViewPage({super.key, required Project project});
+  final Project project;
+
+  const PriorityViewPage({Key? key, required this.project}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,40 +15,72 @@ class PriorityViewPage extends StatelessWidget {
         children: [
           Expanded(
             child: prioritySection(
-                'High Priority', 5),
+              'High Priority',
+              project.tasks.where((task) => task.priority == Priority.high).toList(),
+              Colors.red,
+            ),
           ),
           Expanded(
             child: prioritySection(
-                'Medium Priority', 5), // Liczba przycisków dla tej sekcji
+              'Medium Priority',
+              project.tasks.where((task) => task.priority == Priority.medium).toList(),
+              Colors.orange,
+            ),
           ),
           Expanded(
             child: prioritySection(
-                'Low Priority', 8), // Liczba przycisków dla tej sekcji
+              'Low Priority',
+              project.tasks.where((task) => task.priority == Priority.low).toList(),
+              Colors.green,
+            ),
+          ),
+          Expanded(
+            child: prioritySection(
+              'None Priority',
+              project.tasks.where((task) => task.priority == Priority.none).toList(),
+              Colors.blue,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget prioritySection(String title, int count) {
+  Widget prioritySection(String title, List<Task> tasks, Color titleColor) {
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(12.0),
-          child: Text(title,
-              style: const TextStyle(
-                color: Colors.blue,
-                fontSize: 24,
-              )),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: titleColor,
+              fontSize: 24,
+            ),
+          ),
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: count,
+            itemCount: tasks.length,
             itemBuilder: (context, index) {
+              Task task = tasks[index];
               return ListTile(
-                title: ElevatedButton(
-                  onPressed: () {/* Do something */},
-                  child: Text('Task ${index + 1} $title'),
+                title: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      task.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      task.description ?? "", // Assuming description is a String
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               );
             },
@@ -56,8 +90,5 @@ class PriorityViewPage extends StatelessWidget {
     );
   }
 
-  //List<Task> createList(Project project, Priority priority) {
-  //  List<Task> finalTasks = project.tasks.forEach((element) {element.priority == priority});
-  //  return final
-  //}
+
 }

@@ -26,6 +26,7 @@ class TaskListScreen extends StatefulWidget {
 
 class _TaskListScreenState extends State<TaskListScreen> {
   final TextEditingController taskNameController = TextEditingController();
+  final TextEditingController taskDescController = TextEditingController(text:"");
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
   TextEditingController _freeMonthController = TextEditingController(text:"0");
@@ -235,7 +236,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                                 decoration:
                                                 const InputDecoration(labelText: 'Task Name'),
                                               ),
-                                              const SizedBox(height: 100),
+                                              TextField(
+                                                controller: taskDescController,
+                                                decoration:
+                                                const InputDecoration(labelText: 'Task Description'),
+                                              ),
+                                              const SizedBox(height: 50),
                                               const Text('Deadline'),
                                               Row(
                                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -414,12 +420,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                         child: const Text('Create'),
                                         onPressed: () {
                                           String taskName = taskNameController.text;
+                                          String taskDesc = taskDescController.text;
                                           if (taskName.isNotEmpty) {
                                             print("Task name is $taskName");
                                             if(isCheckboxChecked) {
                                               if (_freeDayController.text == "0" && _freeMonthController.text == "0") {
                                                 widget.addTaskCallback(widget.project.name,
-                                                    Task(taskName, [], null, null, deadline: null, priority: Priority.none));
+                                                    Task(taskName, [], null, null, deadline: null, priority: Priority.none, description: taskDesc));
                                               }
                                               else {
                                                 int nMonth = int.parse(_freeMonthController.text);
@@ -431,19 +438,21 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                                 widget.addTaskCallback(widget.project.name,
                                                     Task(taskName, [], null, null,
                                                         deadline: Deadline(date: freeDeadlineDate, time: timeNow),
-                                                        priority: selectedPriority));
+                                                        priority: selectedPriority,
+                                                        description: taskDesc));
                                               }
                                             }
                                             else {
                                               if (_dateController.text == "") {
                                                 widget.addTaskCallback(widget.project.name,
-                                                    Task(taskName, [], null, null, deadline: null, priority: Priority.none));
+                                                    Task(taskName, [], null, null, deadline: null, priority: Priority.none, description: taskDesc));
                                               }
                                               else {
                                                 widget.addTaskCallback(widget.project.name,
                                                     Task(taskName, [], null, null,
                                                         deadline: Deadline(date: selectedDate, time: selectedTime),
-                                                        priority: selectedPriority));
+                                                        priority: selectedPriority,
+                                                        description: taskDesc));
                                               }
                                             }
                                             // Update the UI callback directly here
