@@ -113,7 +113,7 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
               child: TextField(
                 controller: taskDescriptionController,
                 decoration: InputDecoration(
-                  labelText: 'Task Description',
+                  labelText: widget.task.description,
                   fillColor: Colors.blue.shade500,
                   filled: true,
                 ),

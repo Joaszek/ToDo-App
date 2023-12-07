@@ -17,6 +17,7 @@ class ProjectListScreen extends StatefulWidget {
 class _ProjectListScreenState extends State<ProjectListScreen> {
   final TextEditingController projectNameController = TextEditingController();
   final TextEditingController singleTaskController = TextEditingController();
+  final TextEditingController singleTaskDescController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
   TextEditingController _freeMonthController = TextEditingController(text:"0");
@@ -61,7 +62,8 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           ],
           null,
           null,
-          deadline: null
+          deadline: null,
+          description: "Task 1.1 description"
           ),
       Task('Task 1.2', [], null, null, deadline:Deadline(
         date: DateTime(2023, 12, 30), // specify the date component
@@ -83,7 +85,8 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           null,
           deadline:Deadline(
           date: DateTime(2023, 12, 31), // specify the date component
-          time: TimeOfDay(hour: 15, minute: 30)) // Specify the time component
+          time: TimeOfDay(hour: 15, minute: 30)), // Specify the time component
+          description: "Task 2.2 description"
       ),
     ]),
   ];
@@ -290,7 +293,12 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                       decoration:
                                       const InputDecoration(labelText: 'Task Name'),
                                     ),
-                                    const SizedBox(height: 100),
+                                    TextField(
+                                      controller: singleTaskDescController,
+                                      decoration:
+                                      const InputDecoration(labelText: 'Task Description'),
+                                    ),
+                                    const SizedBox(height: 50),
                                     const Text('Deadline'),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment
@@ -470,11 +478,12 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                               child: const Text('Create', style: TextStyle(color: Colors.blue)),
                               onPressed: () {
                                 String taskName = singleTaskController.text;
+                                String taskDesc = singleTaskDescController.text;
                                 if (taskName.isNotEmpty) {
                                   print("Task name is $taskName");
                                   if(isCheckboxChecked) {
                                     if (_freeDayController.text == "0" && _freeMonthController.text == "0") {
-                                      singleTasks.add(Task(taskName, [], null, null, deadline: null, priority: Priority.none));
+                                      singleTasks.add(Task(taskName, [], null, null, deadline: null, priority: Priority.none, description: taskDesc));
                                     }
                                     else {
                                       int nMonth = int.parse(_freeMonthController.text);
@@ -485,17 +494,19 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                       final freeDeadlineDate = now.add(Duration(days: nMonth * 30 + nDay));
                                       singleTasks.add(Task(taskName, [], null, null, deadline:
                                         Deadline(date: freeDeadlineDate, time: timeNow),
-                                        priority: selectedPriority));
+                                        priority: selectedPriority,
+                                        description: taskDesc));
                                     }
                                   }
                                   else {
                                     if (_dateController.text == "") {
-                                      singleTasks.add(Task(taskName, [], null, null, deadline: null, priority: Priority.none));
+                                      singleTasks.add(Task(taskName, [], null, null, deadline: null, priority: Priority.none, description: taskDesc));
                                     }
                                     else {
                                       singleTasks.add(Task(taskName, [], null, null, deadline:
                                         Deadline(date: selectedDate,time: selectedTime),
-                                        priority: selectedPriority));
+                                        priority: selectedPriority,
+                                        description: taskDesc));
                                     }
                                   }
 
