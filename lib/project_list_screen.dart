@@ -6,6 +6,7 @@ import 'models.dart';
 import 'package:flutter/services.dart'; //for 'FilteringTextInputFormatter in deadline functionality
 import 'main_view.dart';
 import 'calendar_view_multi.dart';
+import 'singleton_task_screen.dart';
 
 class ProjectListScreen extends StatefulWidget {
   const ProjectListScreen({super.key});
@@ -16,6 +17,7 @@ class ProjectListScreen extends StatefulWidget {
 
 class _ProjectListScreenState extends State<ProjectListScreen> {
   final TextEditingController projectNameController = TextEditingController();
+  final TextEditingController projectDescController = TextEditingController();
   final TextEditingController singleTaskController = TextEditingController();
   final TextEditingController singleTaskDescController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
@@ -26,6 +28,8 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   DateTime selectedDate = DateTime.now(); // Variable to store the selected date from tablecalendar CalendarPopUp
   TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
   Priority selectedPriority = Priority.none;
+  RepetitionType selectedRepetition = RepetitionType.none;
+
 
   late SpeechRecognitionService _speechRecognitionService;
   String recognizedText = ''; // State variable to hold the recognized text
@@ -62,16 +66,17 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           ],
           null,
           null,
+          11,
           deadline: null,
           description: "Task 1.1 description"
           ),
-      Task('Task 1.2', [], null, null, deadline:Deadline(
+      Task('Task 1.2', [], null, null, 12, deadline:Deadline(
         date: DateTime(2023, 12, 30), // specify the date component
         time: TimeOfDay(hour: 14, minute: 30), // Specify the time component
       )),
-    ]),
+    ], "project 1 description", 1),
     Project('Project 2', [
-      Task('Task 2.1', [], null, null, deadline:Deadline(
+      Task('Task 2.1', [], null, null, 21, deadline:Deadline(
         date: DateTime(2023, 12, 30), // specify the date component
         time: TimeOfDay(hour: 14, minute: 30), // Specify the time component
       )),
@@ -83,19 +88,32 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           ],
           null,
           null,
+          22,
           deadline:Deadline(
           date: DateTime(2023, 12, 31), // specify the date component
           time: TimeOfDay(hour: 15, minute: 30)), // Specify the time component
           description: "Task 2.2 description"
       ),
-    ]),
+    ], "project 2 description", 2),
   ];
 
   final List<Task> singleTasks = [];
 
-  void addProject(String projectName) {
+  void deleteSingleTasks(String SingleTaskName) {
     setState(() {
-      projects.add(Project(projectName, []));
+      singleTasks.removeWhere((task) => task.name == SingleTaskName);
+    });
+  }
+
+  void addProject(String projectName, [String? projectDesc]) {
+    setState(() {
+      projects.add(Project(projectName, [], projectDesc ?? "", projects.length+1));
+    });
+  }
+
+  void deleteProject(String projectName) {
+    setState(() {
+      projects.removeWhere((project) => project.name == projectName);
     });
   }
 
@@ -120,6 +138,17 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     }
   }
 
+  void deleteTask(String projectName, String taskName) {
+    for (var project in projects) {
+      if (project.name == projectName) {
+        setState(() {
+          project.tasks.removeWhere((task) => task.name == taskName);
+        });
+        break;
+      }
+    }
+  }
+
   // Define the addErrand function
   void addErrand(String projectName, String taskName, Errand errand) {
     for (var project in projects) {
@@ -136,14 +165,44 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     }
   }
 
+  void deleteErrand(String projectName, String taskName, String errandName) {
+    for (var project in projects) {
+      if (project.name == projectName) {
+        for (var task in project.tasks) {
+          if (task.name == taskName) {
+            setState(() {
+              task.errands.removeWhere((errand) => errand.name == errandName);
+            });
+            break;
+          }
+        }
+      }
+    }
+  }
+
   // Define the updateUI function
   void updateUI() {
-    setState(() {});
+    setState(() {
+      scheduleNotificationsForProjects(projects);
+      schedulePeriodicNotificationsForTasks(singleTasks);
+      print("finished creating a scheduled notification for all tasks");
+    });
   }
 
   // Define the updateUI function for TaskListScreen
   void updateTaskList() {
-    setState(() {});
+    setState(() {
+      scheduleNotificationsForProjects(projects);
+      print("finished creating a scheduled notification for all tasks");
+    });
+  }
+
+  // Define the updateUI function
+  void updateSingletonTask() {
+    setState(() {
+      schedulePeriodicNotificationsForTasks(singleTasks);
+      print("finished creating a periodic notification for all singleton tasks");
+    });
   }
 
   // Function to convert DateTime to String with the format yyyy-MM-dd
@@ -169,8 +228,75 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
         updateUICallback: updateUI,
         addErrandCallback: addErrand,
         updateTaskList: updateTaskList,
+        deleteErrandCallback: deleteErrand,
+        deleteTaskCallback: deleteTask,
+        deleteProjectCallback: deleteProject,
       ),
     );
+  }
+
+  MaterialPageRoute<void> navigateToSingletonTaskScreen(Task task) {
+    return MaterialPageRoute<void>(
+      builder: (context) => SingletonTaskScreen(task: task, updateSingletonTask: updateSingletonTask,),
+    );
+  }
+
+  void scheduleNotificationsForProjects(List<Project> projects) {
+    for (Project project in projects) {
+      scheduleNotificationsForTasks(project.tasks);
+    }
+  }
+
+  void scheduleNotificationsForTasks(List<Task> tasks) {
+    for (Task task in tasks) {
+      if (task.deadline != null &&
+          task.deadline!.date != null &&
+          task.deadline!.time != null) {
+        DateTime deadlineDateTime = DateTime(
+          task.deadline!.date!.year,
+          task.deadline!.date!.month,
+          task.deadline!.date!.day,
+          task.deadline!.time!.hour,
+          task.deadline!.time!.minute,
+        );
+
+        // Schedule notification for the task deadline
+        NotificationService().scheduleNotification(
+          id: task.id,
+          title: 'Task: ${task.name}',
+          body: 'Don\'t forget about your task!',
+          scheduledNotificationDateTime: deadlineDateTime,
+        );
+        print("successfully created notification for task ${task.name} with id ${task.id}");
+      }
+    }
+  }
+
+  void schedulePeriodicNotificationsForTasks(List<Task> tasks) {
+    for (Task task in tasks) {
+      if (task.repetitiontype != RepetitionType.none) {
+        // Schedule periodic notification for the task
+        NotificationService().showPeriodicallyNotification(
+          id: task.id,
+          title: 'SingletonTask: ${task.name}',
+          body: 'Don\'t forget about your task!',
+          repetitionType: task.repetitiontype,
+        );
+        print("Successfully created periodic notification for task ${task.name} with id ${task.id}");
+      }
+    }
+  }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Call the function to schedule notifications when the widget is initialized
+    scheduleNotificationsForProjects(projects);
+    print("finished creating a scheduled notification for all tasks");
+    print("projects length: ${projects.length}");
   }
 
   @override
@@ -234,10 +360,17 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: const Text('Create a New Project'),
-                          content: TextField(
-                            controller: projectNameController,
-                            decoration:
-                                const InputDecoration(labelText: 'Project Name'),
+                          content: Column (
+                            children: [
+                              TextField(
+                                controller: projectNameController,
+                                decoration: const InputDecoration(labelText: 'Project Name'),
+                              ),
+                              TextField(
+                                controller: projectDescController,
+                                decoration: const InputDecoration(labelText: 'Project Description'),
+                              ),
+                            ],
                           ),
                           actions: <Widget>[
                             TextButton(
@@ -253,7 +386,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                               onPressed: () {
                                 String projectName = projectNameController.text;
                                 if (projectName.isNotEmpty) {
-                                  addProject(projectName);
+                                  addProject(projectName, projectDescController.text);
                                 }
                                 Navigator.of(context).pop();
                               },
@@ -460,6 +593,14 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                         selectedPriority = priority;
                                       },
                                     ),
+                                    const Text('Repetition'),
+                                    RepetitionScroll(
+                                      onRepetitionSelected: (repetition) {
+                                        // Use the selectedRepetition as needed
+                                        print('Selected Priority: $repetition');
+                                        selectedRepetition = repetition;
+                                      },
+                                    ),
 
                                   ],
                                 );
@@ -479,11 +620,12 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                               onPressed: () {
                                 String taskName = singleTaskController.text;
                                 String taskDesc = singleTaskDescController.text;
+                                int id = int.parse('999${singleTasks.length+1}');
                                 if (taskName.isNotEmpty) {
                                   print("Task name is $taskName");
                                   if(isCheckboxChecked) {
                                     if (_freeDayController.text == "0" && _freeMonthController.text == "0") {
-                                      singleTasks.add(Task(taskName, [], null, null, deadline: null, priority: Priority.none, description: taskDesc));
+                                      singleTasks.add(Task(taskName, [], null, null, id, deadline: null, priority: Priority.none, description: taskDesc, repetitionType: selectedRepetition));
                                     }
                                     else {
                                       int nMonth = int.parse(_freeMonthController.text);
@@ -492,27 +634,30 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                       final now = DateTime.now();
                                       final timeNow = TimeOfDay.now();
                                       final freeDeadlineDate = now.add(Duration(days: nMonth * 30 + nDay));
-                                      singleTasks.add(Task(taskName, [], null, null, deadline:
+                                      singleTasks.add(Task(taskName, [], null, null, id, deadline:
                                         Deadline(date: freeDeadlineDate, time: timeNow),
                                         priority: selectedPriority,
-                                        description: taskDesc));
+                                        description: taskDesc,
+                                        repetitionType: selectedRepetition));
                                     }
                                   }
                                   else {
                                     if (_dateController.text == "") {
-                                      singleTasks.add(Task(taskName, [], null, null, deadline: null, priority: Priority.none, description: taskDesc));
+                                      singleTasks.add(Task(taskName, [], null, null, id, deadline: null, priority: Priority.none, description: taskDesc, repetitionType: selectedRepetition));
                                     }
                                     else {
-                                      singleTasks.add(Task(taskName, [], null, null, deadline:
+                                      singleTasks.add(Task(taskName, [], null, null, id, deadline:
                                         Deadline(date: selectedDate,time: selectedTime),
                                         priority: selectedPriority,
-                                        description: taskDesc));
+                                        description: taskDesc,
+                                        repetitionType: selectedRepetition));
                                     }
                                   }
 
                                   // Update the UI callback directly here
                                   setState(() {
                                     print("Single Tasks has been created");
+                                    schedulePeriodicNotificationsForTasks(singleTasks);
                                   });
                                 }
                                 Navigator.of(context).pop();
@@ -535,7 +680,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             onTap: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CalendarViewMultiPage(projects: projects))
+                  MaterialPageRoute(builder: (context) => CalendarViewMultiPage(projects: projects, singletonTasks: singleTasks))
               );
               print('calendar opened!');
             },
@@ -544,7 +689,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   color: Colors.lightBlue, // Set the color of the larger container
-                  child: DateList(projects: projects),
+                  child: DateList(projects: projects, singletonTasks: singleTasks),
                 )
             ),
           ),
@@ -614,7 +759,49 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                   title: Text(
                     task.name,
                   ),
-                  onTap: () {
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    tooltip: 'Explore',
+                    onPressed: () {
+                      print('deleting singleton Task');
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Confirm Deletion"),
+                            content: Text("Are you sure you want to delete the singleton Task?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  // User pressed 'Yes', perform deletion logic here
+                                  print("Deleting the Singleton Task");
+                                  deleteSingleTasks(task.name);
+                                  NotificationService().cancelNotification(task.id);
+                                  Navigator.of(context).pop(); // Close the AlertDialog
+                                },
+                                child: Text("Yes"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  // User pressed 'No', close the AlertDialog
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text("No"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  onTap: () async {
+                    await Navigator.push(
+                      context, navigateToSingletonTaskScreen(task),
+                    );
+
+                    // When returning from the TaskListScreen, update the UI to
+                    // reflect the new task completion status.
+                    setState(() {});
 
                     // Handle tap on single tasks here
                   },

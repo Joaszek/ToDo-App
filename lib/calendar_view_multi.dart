@@ -4,8 +4,9 @@ import 'models.dart';
 
 class CalendarViewMultiPage extends StatefulWidget {
   final List<Project> projects;
+  final List<Task> singletonTasks;
 
-  const CalendarViewMultiPage({Key? key, required this.projects}) : super(key: key);
+  const CalendarViewMultiPage({Key? key, required this.projects, required this.singletonTasks}) : super(key: key);
 
   @override
   _CalendarViewMultiPageState createState() => _CalendarViewMultiPageState();
@@ -42,10 +43,38 @@ class _CalendarViewMultiPageState extends State<CalendarViewMultiPage> {
     });
   }
 
+
+  void _addSingletonTasksEvents(List<Task> tasks) {
+    tasks.forEach((task) {
+      // Check if the task has a deadline
+      if (task.deadline != null) {
+        DateTime deadlineDate = task.deadline!.date ?? DateTime.now();
+        TimeOfDay deadlineTime = task.deadline!.time ?? TimeOfDay.now();
+
+        DateTime deadlineDateTime = DateTime(
+          deadlineDate.year,
+          deadlineDate.month,
+          deadlineDate.day,
+          deadlineTime.hour,
+          deadlineTime.minute,
+        );
+
+        _events.putIfAbsent(deadlineDateTime, () => []);
+        _events[deadlineDateTime]!.add(Event(task.name, priority: task.priority));
+      }
+    });
+
+    setState(() {
+      // Update the calendar after adding events
+    });
+  }
+
+
   @override
   void initState() {
     super.initState();
     _addProjectEvents(widget.projects);
+    _addSingletonTasksEvents(widget.singletonTasks);
     """
     _events = {
       DateTime(2023, 11, 25): [

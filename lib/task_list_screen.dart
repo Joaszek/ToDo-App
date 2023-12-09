@@ -11,6 +11,9 @@ class TaskListScreen extends StatefulWidget {
   final Function(String, String, Errand) addErrandCallback;
   final VoidCallback updateUICallback;
   final VoidCallback updateTaskList;
+  final Function(String, String, String) deleteErrandCallback;
+  final Function(String, String) deleteTaskCallback;
+  final Function(String) deleteProjectCallback;
 
   const TaskListScreen({super.key,
     required this.project,
@@ -18,6 +21,9 @@ class TaskListScreen extends StatefulWidget {
     required this.updateUICallback,
     required this.addErrandCallback,
     required this.updateTaskList,
+    required this.deleteErrandCallback,
+    required this.deleteTaskCallback,
+    required this.deleteProjectCallback,
   });
 
   @override
@@ -103,13 +109,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
   int getPointsForPriority(Priority priority) {
     switch (priority) {
       case Priority.none:
-        return 0;
-      case Priority.low:
         return 1;
-      case Priority.medium:
+      case Priority.low:
         return 2;
-      case Priority.high:
+      case Priority.medium:
         return 3;
+      case Priority.high:
+        return 4;
     }
   }
 
@@ -148,7 +154,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     // Perform actions with the extracted text
                     print('Text after "name": $textAfterName');
                     widget.addTaskCallback(widget.project.name,
-                        Task(textAfterName, [], null, null, deadline: null, priority: Priority.none));
+                        Task(textAfterName, [], null, null, widget.project.tasks.length+1, deadline: null, priority: Priority.none));
 
                     // Reset recognizedText to avoid creating another project instantly
                     recognizedText = '';
@@ -160,6 +166,40 @@ class _TaskListScreenState extends State<TaskListScreen> {
               setState(() {});
 
             },
+          ),
+          IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                // Show AlertDialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Confirm Deletion"),
+                      content: Text("Are you sure you want to delete the project?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            // User pressed 'Yes', perform deletion logic here
+                            print("Deleting the project");
+                            widget.deleteProjectCallback(widget.project.name);
+                            Navigator.of(context).pop(); // Close the AlertDialog
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("Yes"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // User pressed 'No', close the AlertDialog
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("No"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
           ),
         ],
       ),
@@ -173,7 +213,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 child: TextField(
                   controller: projectDescriptionController,
                   decoration: InputDecoration(
-                    labelText: 'Project Description',
+                    labelText: widget.project.description,
                     fillColor: Colors.lightBlue,
                     filled: true,
                   ),
@@ -421,12 +461,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                         onPressed: () {
                                           String taskName = taskNameController.text;
                                           String taskDesc = taskDescController.text;
+                                          int id = int.parse('${widget.project.id}${widget.project.tasks.length + 1}');
                                           if (taskName.isNotEmpty) {
                                             print("Task name is $taskName");
                                             if(isCheckboxChecked) {
                                               if (_freeDayController.text == "0" && _freeMonthController.text == "0") {
                                                 widget.addTaskCallback(widget.project.name,
-                                                    Task(taskName, [], null, null, deadline: null, priority: Priority.none, description: taskDesc));
+                                                    Task(taskName, [], null, null, id, deadline: null, priority: Priority.none, description: taskDesc));
                                               }
                                               else {
                                                 int nMonth = int.parse(_freeMonthController.text);
@@ -436,7 +477,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                                 final timeNow = TimeOfDay.now();
                                                 final freeDeadlineDate = now.add(Duration(days: nMonth * 30 + nDay));
                                                 widget.addTaskCallback(widget.project.name,
-                                                    Task(taskName, [], null, null,
+                                                    Task(taskName, [], null, null, id,
                                                         deadline: Deadline(date: freeDeadlineDate, time: timeNow),
                                                         priority: selectedPriority,
                                                         description: taskDesc));
@@ -445,11 +486,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                             else {
                                               if (_dateController.text == "") {
                                                 widget.addTaskCallback(widget.project.name,
-                                                    Task(taskName, [], null, null, deadline: null, priority: Priority.none, description: taskDesc));
+                                                    Task(taskName, [], null, null, id, deadline: null, priority: Priority.none, description: taskDesc));
                                               }
                                               else {
                                                 widget.addTaskCallback(widget.project.name,
-                                                    Task(taskName, [], null, null,
+                                                    Task(taskName, [], null, null, id,
                                                         deadline: Deadline(date: selectedDate, time: selectedTime),
                                                         priority: selectedPriority,
                                                         description: taskDesc));
@@ -514,6 +555,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                       widget.addErrandCallback,
                                       widget.updateUICallback,
                                       widget.updateTaskList,
+                                      widget.deleteErrandCallback,
+                                      widget.deleteTaskCallback,
                                     ),
                                   ),
                                 );
@@ -575,6 +618,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                       widget.addErrandCallback,
                                       widget.updateUICallback,
                                       widget.updateTaskList,
+                                      widget.deleteErrandCallback,
+                                      widget.deleteTaskCallback,
                                     ),
                                   ),
                                 );

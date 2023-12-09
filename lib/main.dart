@@ -2,8 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'project_list_screen.dart';
+import 'models.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().initNotification();
+  // Initialize time zones
+  tz.initializeTimeZones();
+
   runApp(const MyApp());
 }
 
