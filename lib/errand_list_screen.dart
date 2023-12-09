@@ -13,9 +13,11 @@ class ErrandListScreen extends StatefulWidget {
   final Function(String, String, Errand) addErrandCallback;
   final VoidCallback updateUICallback;
   final VoidCallback updateTaskListCallback;
+  final Function(String, String, String) deleteErrandCallback;
+  final Function(String, String) deleteTaskCallback;
 
   const ErrandListScreen(
-      this.project, this.task, this.addErrandCallback, this.updateUICallback,  this.updateTaskListCallback, {super.key});
+      this.project, this.task, this.addErrandCallback, this.updateUICallback,  this.updateTaskListCallback, this.deleteErrandCallback, this.deleteTaskCallback, {super.key});
 
   @override
   _ErrandListScreenState createState() => _ErrandListScreenState();
@@ -93,13 +95,45 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
                     recognizedText = '';
                   }
                 }
-
-
                 _speechRecognitionService.reset(); // Reset the service after stopping listening
               }
               setState(() {});
-
             },
+          ),
+          IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                // Show AlertDialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Confirm Deletion"),
+                      content: Text("Are you sure you want to delete the task?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            // User pressed 'Yes', perform deletion logic here
+                            print("Deleting the task");
+                            widget.deleteTaskCallback(widget.project.name, widget.task.name);
+                            NotificationService().cancelNotification(widget.task.id);
+                            Navigator.of(context).pop(); // Close the AlertDialog
+                            Navigator.of(context).pop(); // twice because we are closing the respective errand list screen
+                          },
+                          child: Text("Yes"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // User pressed 'No', close the AlertDialog
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("No"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
           ),
         ],
       ),
@@ -302,6 +336,39 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
                                       )
                                     ),
                                   ),
+                                  IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.white),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text("Confirm Deletion"),
+                                              content: Text("Are you sure you want to delete the errand?"),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    // User pressed 'Yes', perform deletion logic here
+                                                    print("Deleting the errand");
+                                                    widget.deleteErrandCallback(widget.project.name, widget.task.name, errand.name);
+                                                    Navigator.of(context).pop(); // Close the AlertDialog
+                                                    setState(() {}); // update the UI
+                                                  },
+                                                  child: Text("Yes"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    // User pressed 'No', close the AlertDialog
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text("No"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
+                                  ),
                                 ],
                               ),
                             ),
@@ -384,6 +451,39 @@ class _ErrandListScreenState extends State<ErrandListScreen> {
                                           ),
                                         )
                                     ),
+                                  ),
+                                  IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.black),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text("Confirm Deletion"),
+                                              content: Text("Are you sure you want to delete the errand?"),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    // User pressed 'Yes', perform deletion logic here
+                                                    print("Deleting the errand");
+                                                    widget.deleteErrandCallback(widget.project.name, widget.task.name, errand.name);
+                                                    Navigator.of(context).pop(); // Close the AlertDialog
+                                                    setState(() {});
+                                                  },
+                                                  child: Text("Yes"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    // User pressed 'No', close the AlertDialog
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text("No"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
                                   ),
                                 ],
                               ),
