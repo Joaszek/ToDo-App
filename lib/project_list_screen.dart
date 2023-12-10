@@ -666,6 +666,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                     schedulePeriodicNotificationsForTasks(singleTasks);
                                   });
                                 }
+                                createdSingletonTask += 1;
                                 Navigator.of(context).pop();
                               },
                             ),
