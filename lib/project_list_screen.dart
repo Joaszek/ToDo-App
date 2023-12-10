@@ -29,6 +29,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   TimeOfDay selectedTime = TimeOfDay.now(); // Variable to store the selected time from TimePickerPopUp
   Priority selectedPriority = Priority.none;
   RepetitionType selectedRepetition = RepetitionType.none;
+  int createdProjects = 2;
 
 
   late SpeechRecognitionService _speechRecognitionService;
@@ -107,7 +108,8 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
 
   void addProject(String projectName, [String? projectDesc]) {
     setState(() {
-      projects.add(Project(projectName, [], projectDesc ?? "", projects.length+1));
+      projects.add(Project(projectName, [], projectDesc ?? "", createdProjects+1));
+      createdProjects += 1;
     });
   }
 
