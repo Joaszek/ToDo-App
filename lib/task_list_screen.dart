@@ -14,6 +14,7 @@ class TaskListScreen extends StatefulWidget {
   final Function(String, String, String) deleteErrandCallback;
   final Function(String, String) deleteTaskCallback;
   final Function(String) deleteProjectCallback;
+  final int createdTask;
 
   const TaskListScreen({super.key,
     required this.project,
@@ -24,6 +25,7 @@ class TaskListScreen extends StatefulWidget {
     required this.deleteErrandCallback,
     required this.deleteTaskCallback,
     required this.deleteProjectCallback,
+    required this.createdTask,
   });
 
   @override
@@ -154,7 +156,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     // Perform actions with the extracted text
                     print('Text after "name": $textAfterName');
                     widget.addTaskCallback(widget.project.name,
-                        Task(textAfterName, [], null, null, widget.project.tasks.length+1, deadline: null, priority: Priority.none));
+                        Task(textAfterName, [], null, null, widget.createdTask+1, deadline: null, priority: Priority.none));
 
                     // Reset recognizedText to avoid creating another project instantly
                     recognizedText = '';
@@ -461,7 +463,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                         onPressed: () {
                                           String taskName = taskNameController.text;
                                           String taskDesc = taskDescController.text;
-                                          int id = int.parse('${widget.project.id}${widget.project.tasks.length + 1}');
+                                          int id = int.parse('${widget.project.id}${widget.createdTask + 1}');
                                           if (taskName.isNotEmpty) {
                                             print("Task name is $taskName");
                                             if(isCheckboxChecked) {

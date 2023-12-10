@@ -30,6 +30,8 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   Priority selectedPriority = Priority.none;
   RepetitionType selectedRepetition = RepetitionType.none;
   int createdProjects = 2;
+  int createdTasks = 4;
+  int createdSingletonTask = 0;
 
 
   late SpeechRecognitionService _speechRecognitionService;
@@ -134,6 +136,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       if (project.name == projectName) {
         setState(() {
           project.tasks.add(task);
+          createdTasks += 1;
         });
         break;
       }
@@ -233,6 +236,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
         deleteErrandCallback: deleteErrand,
         deleteTaskCallback: deleteTask,
         deleteProjectCallback: deleteProject,
+        createdTask: createdTasks,
       ),
     );
   }
@@ -622,7 +626,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                               onPressed: () {
                                 String taskName = singleTaskController.text;
                                 String taskDesc = singleTaskDescController.text;
-                                int id = int.parse('999${singleTasks.length+1}');
+                                int id = int.parse('999${createdSingletonTask+1}');
                                 if (taskName.isNotEmpty) {
                                   print("Task name is $taskName");
                                   if(isCheckboxChecked) {
